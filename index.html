@@ -6,41 +6,38 @@
 <title>정오의 주식매매</title>
 <style>
 :root {
-  --bg: #f7f7f8;
+  --bg: #f4f5f7;
   --card-bg: #ffffff;
-  --text: #1a1a1a;
-  --muted: #6b7280;
-  --border: #e5e7eb;
+  --card-bg-2: #fafbfc;
+  --text: #0f1115;
+  --muted: #64748b;
+  --border: #e2e5eb;
   --up: #dc2626;
   --down: #2563eb;
   --flat: #6b7280;
   --accent: #111827;
   --brand: #b45309;
   --brand-soft: #fef3c7;
-  --hit-bg: #dcfce7; --hit-fg: #166534;
-  --partial-bg: #fef9c3; --partial-fg: #854d0e;
-  --fail-bg: #fee2e2; --fail-fg: #991b1b;
-  --etc-bg: #e5e7eb; --etc-fg: #374151;
+  --shadow: 0 1px 2px rgba(15, 17, 21, 0.04), 0 8px 24px -12px rgba(15, 17, 21, 0.12);
+  --grid-line: rgba(15, 17, 21, 0.06);
 }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #0f1115; --card-bg: #1a1d24; --text: #e5e7eb; --muted: #9ca3af;
-    --border: #2a2e37; --up: #f87171; --down: #60a5fa; --flat: #9ca3af;
-    --accent: #f3f4f6; --brand: #fbbf24; --brand-soft: #3f2d0a;
-    --hit-bg: #14532d; --hit-fg: #bbf7d0;
-    --partial-bg: #713f12; --partial-fg: #fef08a;
-    --fail-bg: #7f1d1d; --fail-fg: #fecaca;
-    --etc-bg: #374151; --etc-fg: #e5e7eb;
+  :root {
+    --bg: #0a0c10;
+    --card-bg: #14171d;
+    --card-bg-2: #191d24;
+    --text: #e8eaed;
+    --muted: #8b94a3;
+    --border: #262b34;
+    --up: #f87171;
+    --down: #60a5fa;
+    --flat: #9ca3af;
+    --accent: #f3f4f6;
+    --brand: #fbbf24;
+    --brand-soft: #2e2408;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 32px -12px rgba(0, 0, 0, 0.55);
+    --grid-line: rgba(255, 255, 255, 0.055);
   }
-}
-:root[data-theme="dark"] {
-  --bg: #0f1115; --card-bg: #1a1d24; --text: #e5e7eb; --muted: #9ca3af;
-  --border: #2a2e37; --up: #f87171; --down: #60a5fa; --flat: #9ca3af;
-  --accent: #f3f4f6; --brand: #fbbf24; --brand-soft: #3f2d0a;
-  --hit-bg: #14532d; --hit-fg: #bbf7d0;
-  --partial-bg: #713f12; --partial-fg: #fef08a;
-  --fail-bg: #7f1d1d; --fail-fg: #fecaca;
-  --etc-bg: #374151; --etc-fg: #e5e7eb;
 }
 * { box-sizing: border-box; }
 body {
@@ -48,60 +45,306 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: -apple-system, "Segoe UI", Pretendard, "Noto Sans KR", sans-serif;
-  line-height: 1.55;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
 }
 a { color: inherit; }
-:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+.num, .big, .kpi-value, td.up, td.down, td.flat, .ticker-item b {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
 
-.site-header { position: sticky; top: 0; z-index: 10; background: var(--card-bg); border-bottom: 1px solid var(--border); }
-.nav-wrap { max-width: 1080px; margin: 0 auto; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
-.logo { font-weight: 800; font-size: 18px; text-decoration: none; color: var(--text); display: flex; align-items: baseline; gap: 6px; cursor: pointer; background: none; border: none; padding: 0; font-family: inherit; }
+/* Header / nav */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--card-bg);
+  border-bottom: 1px solid var(--border);
+}
+.nav-wrap {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.logo {
+  font-weight: 800;
+  font-size: 18px;
+  text-decoration: none;
+  color: var(--text);
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  /* 배포본(deploy/index.html)에서는 <a>가 아니라 <button data-route>로 바뀌므로
+     브라우저 기본 버튼 테두리/배경을 지워 <a>였을 때와 똑같이 보이게 한다. */
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: inherit;
+}
 .logo .noon { color: var(--brand); }
-.nav-links { display: flex; gap: 22px; list-style: none; margin: 0; padding: 0; font-size: 14px; }
-.nav-links button { background: none; border: none; padding: 0; font: inherit; cursor: pointer; text-decoration: none; color: var(--muted); font-weight: 600; white-space: nowrap; }
-.nav-links button.active, .nav-links button:hover { color: var(--text); }
+.nav-links {
+  display: flex;
+  gap: 22px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 14px;
+}
+.nav-links a, .nav-links button {
+  text-decoration: none;
+  color: var(--muted);
+  font-weight: 600;
+  white-space: nowrap;
+  /* .logo와 같은 이유: 배포본에서는 <button data-route>가 된다 */
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
+}
+.nav-links a.active, .nav-links button.active,
+.nav-links a:hover, .nav-links button:hover { color: var(--text); }
 
-.page { max-width: 1080px; margin: 0 auto; padding: 32px 20px 60px; }
-h1 { font-size: 26px; margin: 0 0 8px; text-wrap: balance; }
+/* Ticker tape */
+.ticker-tape {
+  background: var(--accent);
+  color: var(--bg);
+  overflow: hidden;
+  white-space: nowrap;
+  position: relative;
+}
+.ticker-tape::before, .ticker-tape::after {
+  content: "";
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 32px;
+  z-index: 1;
+  pointer-events: none;
+}
+.ticker-tape::before { left: 0; background: linear-gradient(90deg, var(--accent), transparent); }
+.ticker-tape::after { right: 0; background: linear-gradient(270deg, var(--accent), transparent); }
+.ticker-track {
+  display: inline-flex;
+  align-items: center;
+  gap: 36px;
+  padding: 8px 0;
+  animation: ticker-scroll 38s linear infinite;
+  will-change: transform;
+}
+.ticker-tape:hover .ticker-track { animation-play-state: paused; }
+.ticker-item { display: inline-flex; align-items: baseline; gap: 6px; font-size: 12.5px; font-weight: 600; }
+.ticker-item .ticker-label { opacity: 0.65; font-weight: 500; }
+.ticker-item .up { color: #fca5a5; }
+.ticker-item .down { color: #93c5fd; }
+.ticker-item .flat { color: #cbd5e1; }
+@keyframes ticker-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ticker-track { animation: none; }
+}
+
+/* Layout */
+.page {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 32px 20px 60px;
+}
+h1 { font-size: 26px; margin: 0 0 8px; }
 h2 { font-size: 17px; margin: 36px 0 12px; color: var(--accent); border-bottom: 1px solid var(--border); padding-bottom: 8px; }
 h3 { font-size: 14px; margin: 0 0 10px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 p { margin: 0 0 12px; }
 .muted { color: var(--muted); }
 .small { font-size: 12px; font-weight: normal; }
-.big { font-size: 24px; font-weight: 700; margin: 4px 0; font-variant-numeric: tabular-nums; }
+.big { font-size: 24px; font-weight: 700; margin: 4px 0; }
 .lede { font-size: 16px; color: var(--muted); max-width: 640px; }
 
-.hero { padding: 56px 0 40px; text-align: center; }
-.hero .badge-live { display: inline-block; background: var(--brand-soft); color: var(--brand); font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 999px; margin-bottom: 16px; }
-.hero h1 { font-size: 34px; text-wrap: balance; }
-.hero .lede { margin: 0 auto 24px; }
-.cta-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
-.btn { display: inline-block; padding: 11px 22px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 14px; border: none; cursor: pointer; font-family: inherit; }
+/* Hero */
+.hero {
+  padding: 52px 0 0;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 900px 420px at 50% -10%, var(--brand-soft) 0%, transparent 60%),
+    linear-gradient(180deg, var(--card-bg-2) 0%, var(--bg) 100%);
+  border-bottom: 1px solid var(--border);
+}
+.hero .badge-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--brand-soft);
+  color: var(--brand);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 14px 5px 10px;
+  border-radius: 999px;
+  margin-bottom: 18px;
+}
+.badge-live .live-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--brand);
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--brand) 60%, transparent);
+  animation: live-pulse 1.8s ease-out infinite;
+}
+@keyframes live-pulse {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--brand) 55%, transparent); }
+  70% { box-shadow: 0 0 0 7px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+.hero h1 { font-size: 36px; letter-spacing: -0.01em; }
+.hero .lede { margin: 0 auto 28px; }
+.cta-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 40px; }
+.btn {
+  display: inline-block;
+  padding: 11px 22px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 14px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-family: inherit;
+}
 .btn-primary { background: var(--accent); color: var(--bg); }
-.btn-secondary { background: var(--card-bg); color: var(--text); border: 1px solid var(--border); }
+.btn-secondary { background: var(--card-bg); color: var(--text); border-color: var(--border); }
 
+/* KPI strip */
+.kpi-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin: 0 0 8px;
+  box-shadow: var(--shadow);
+}
+.kpi-item {
+  background: var(--card-bg);
+  padding: 16px 14px;
+  text-align: center;
+}
+.kpi-label { font-size: 11.5px; color: var(--muted); font-weight: 600; margin-bottom: 6px; }
+.kpi-value { font-size: 20px; font-weight: 800; letter-spacing: -0.01em; }
+.kpi-value.up { color: var(--up); }
+.kpi-value.down { color: var(--down); }
+.kpi-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+/* Hero animated chart */
+.hero-chart-wrap {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 0 20px 8px;
+}
+.hero-chart {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.hero-chart .grid-line { stroke: var(--grid-line); stroke-width: 1; }
+.hero-chart .price-line {
+  fill: none;
+  stroke: var(--up);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: draw-line 2.4s ease-out forwards;
+}
+.hero-chart .price-area { fill: var(--up); animation: fade-in-area 2.4s ease-out forwards; opacity: 0; }
+.hero-chart .price-dot {
+  fill: var(--up);
+  animation: dot-appear 0.4s ease-out 2.1s forwards, dot-pulse 2s ease-in-out 2.5s infinite;
+  opacity: 0;
+  transform-origin: center;
+}
+.hero-chart .price-dot-glow {
+  fill: var(--up);
+  opacity: 0;
+  animation: glow-appear 0.4s ease-out 2.1s forwards, glow-pulse 2s ease-in-out 2.5s infinite;
+  transform-origin: center;
+}
+@keyframes draw-line { to { stroke-dashoffset: 0; } }
+@keyframes fade-in-area { to { opacity: 0.14; } }
+@keyframes dot-appear { to { opacity: 1; } }
+@keyframes glow-appear { to { opacity: 0.35; } }
+@keyframes dot-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.25); }
+}
+@keyframes glow-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.35; }
+  50% { transform: scale(2.2); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-chart .price-line, .hero-chart .price-dot { animation: none; opacity: 1; stroke-dashoffset: 0; }
+  .hero-chart .price-area { animation: none; opacity: 0.14; }
+  .hero-chart .price-dot-glow { animation: none; opacity: 0.2; }
+}
+
+/* Cards / grid */
 .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
-.card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; }
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 18px;
+  box-shadow: var(--shadow);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.card:hover { transform: translateY(-1px); }
 .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin: 24px 0; }
-.feature-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+.feature-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 20px; box-shadow: var(--shadow); }
 .feature-card .num { font-size: 12px; font-weight: 800; color: var(--brand); }
 .feature-card h3 { font-size: 15px; margin: 6px 0 6px; }
 .feature-card p { color: var(--muted); font-size: 13px; margin: 0; }
 
-.table-wrap { overflow-x: auto; }
+/* Tables */
+.table-wrap { overflow-x: auto; border-radius: 10px; box-shadow: var(--shadow); }
 table { width: 100%; border-collapse: collapse; background: var(--card-bg); border-radius: 10px; overflow: hidden; font-size: 13px; }
-th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); }
-td { font-variant-numeric: tabular-nums; }
-th { color: var(--muted); font-weight: 600; font-size: 12px; }
+th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--border); }
+th {
+  color: var(--muted);
+  font-weight: 700;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  background: var(--card-bg-2);
+  position: sticky;
+  top: 0;
+}
+tbody tr { transition: background-color 0.1s ease; }
+tbody tr:hover { background: var(--card-bg-2); }
+tbody tr:last-child td { border-bottom: none; }
 .up { color: var(--up); font-weight: 600; }
 .down { color: var(--down); font-weight: 600; }
 .flat { color: var(--flat); }
 
+/* Badges */
 .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; }
-.badge-hit { background: var(--hit-bg); color: var(--hit-fg); }
-.badge-partial { background: var(--partial-bg); color: var(--partial-fg); }
-.badge-fail { background: var(--fail-bg); color: var(--fail-fg); }
-.badge-etc { background: var(--etc-bg); color: var(--etc-fg); }
+.badge-hit { background: #dcfce7; color: #166534; }
+.badge-partial { background: #fef9c3; color: #854d0e; }
+.badge-fail { background: #fee2e2; color: #991b1b; }
+.badge-etc { background: #e5e7eb; color: #374151; }
+@media (prefers-color-scheme: dark) {
+  .badge-hit { background: #14532d; color: #bbf7d0; }
+  .badge-partial { background: #713f12; color: #fef08a; }
+  .badge-fail { background: #7f1d1d; color: #fecaca; }
+  .badge-etc { background: #374151; color: #e5e7eb; }
+}
 
 .reason-list { margin: 6px 0 0; padding-left: 16px; }
 .reason-list li { margin-bottom: 2px; }
@@ -113,42 +356,161 @@ th { color: var(--muted); font-weight: 600; font-size: 12px; }
 .progress-zero { position: absolute; top: -2px; width: 2px; height: 10px; background: var(--text); opacity: 0.4; }
 .progress-labels { display: flex; justify-content: space-between; margin: 2px 0 0; }
 
+/* Flip cards ("오늘 12시 추천종목") */
+.flip-instructions { margin: -6px 0 14px; }
+.flip-scene .card-grid { align-items: stretch; }
+.card.flip-card {
+  background: none;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  cursor: pointer;
+}
+.card.flip-card:hover { transform: none; }
+.flip-card-inner {
+  position: relative;
+  height: 260px;
+  transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+  transform-style: preserve-3d;
+}
+.flip-card.flipped .flip-card-inner { transform: rotateY(180deg); }
+.flip-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--card-bg);
+  box-shadow: var(--shadow);
+  padding: 16px 18px;
+  overflow-y: auto;
+}
+.flip-front {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 4px;
+}
+.flip-front h3 { margin: 0; }
+.flip-back { transform: rotateY(180deg); }
+.flip-hint {
+  margin: 10px 0 0;
+  padding-top: 8px;
+  border-top: 1px dashed var(--border);
+  width: 100%;
+  opacity: 0.75;
+}
+.flip-card:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; border-radius: 10px; }
+@media (prefers-reduced-motion: reduce) {
+  .flip-card-inner { transition: none; }
+}
+
+/* Steps (strategy page) */
 .step-list { counter-reset: step; list-style: none; margin: 24px 0; padding: 0; }
-.step-list li { counter-increment: step; position: relative; padding: 0 0 24px 44px; border-left: 2px solid var(--border); margin-left: 14px; }
+.step-list li {
+  counter-increment: step;
+  position: relative;
+  padding: 0 0 24px 44px;
+  border-left: 2px solid var(--border);
+  margin-left: 14px;
+}
 .step-list li:last-child { border-left-color: transparent; padding-bottom: 0; }
-.step-list li::before { content: counter(step); position: absolute; left: -15px; top: 0; width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: var(--bg); font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+.step-list li::before {
+  content: counter(step);
+  position: absolute;
+  left: -15px;
+  top: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--bg);
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 .step-list h3 { margin-bottom: 4px; }
 .step-list p { color: var(--muted); font-size: 14px; margin: 0; }
 
-.disclaimer { margin-top: 32px; padding: 14px 16px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; font-size: 13px; color: var(--muted); }
-.site-footer { border-top: 1px solid var(--border); padding: 24px 20px 40px; text-align: center; color: var(--muted); font-size: 12px; }
+/* Disclaimer */
+.disclaimer {
+  margin-top: 32px;
+  padding: 14px 16px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 13px;
+  color: var(--muted);
+}
 
-[hidden] { display: none !important; }
+/* Data source strip */
+.source-strip {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px 22px;
+  padding: 22px 20px;
+  margin: 8px 0 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  background: var(--card-bg-2);
+}
+.source-strip span {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--muted);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+/* Footer */
+.site-footer {
+  border-top: 1px solid var(--border);
+  padding: 24px 20px 40px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 12px;
+}
 
 @media (max-width: 640px) {
+  .nav-wrap { flex-wrap: wrap; }
   .nav-links { gap: 10px 14px; font-size: 12px; width: 100%; }
   .hero h1 { font-size: 26px; }
+  .kpi-strip { grid-template-columns: repeat(2, 1fr); }
+  .kpi-value { font-size: 17px; }
+  .ticker-item { font-size: 11.5px; }
 }
+
 </style>
 </head>
 <body>
 <header class="site-header">
   <div class="nav-wrap">
-    <button class="logo" data-route="home">정오의<span class="noon">주식매매</span></button>
+    <button data-route="index" class="logo">정오의<span class="noon">주식매매</span></button>
     <ul class="nav-links">
-      <li><button data-route="home">홈</button></li>
-      <li><button data-route="picks">오늘의 픽</button></li>
-      <li><button data-route="strategy">전략 소개</button></li>
-      <li><button data-route="track-record">오늘의 고찰</button></li>
-      <li><button data-route="about">소개</button></li>
+      <li><button data-route="index" class="active">홈</button></li>
+      <li><button data-route="picks" style="background:none;border:none;padding:0;color:var(--brand);font:inherit;cursor:pointer;text-decoration:underline">오늘의 픽</button></li>
+      <li><button data-route="strategy" style="background:none;border:none;padding:0;color:var(--brand);font:inherit;cursor:pointer;text-decoration:underline">전략 소개</button></li>
+      <li><button data-route="track-record" style="background:none;border:none;padding:0;color:var(--brand);font:inherit;cursor:pointer;text-decoration:underline">오늘의 고찰</button></li>
+      <li><button data-route="about" style="background:none;border:none;padding:0;color:var(--brand);font:inherit;cursor:pointer;text-decoration:underline">소개</button></li>
     </ul>
   </div>
 </header>
 
 <section id="route-home" class="route">
+<div class="ticker-tape">
+  <!-- SYNC:TICKER_START -->
+<div class='ticker-track'><span class='ticker-item'><span class='ticker-label'>공포지수(VIX)</span> <b>18.0 · 중립</b></span><span class='ticker-item'><span class='ticker-label'>기술적 판단</span> <b>매수추천</b></span><span class='ticker-item'><span class='ticker-label'>넥스틴</span> <b class='down'>-2.54%</b></span><span class='ticker-item'><span class='ticker-label'>우리기술투자</span> <b class='up'>+0.18%</b></span><span class='ticker-item'><span class='ticker-label'>마음AI</span> <b class='down'>-1.76%</b></span><span class='ticker-item'><span class='ticker-label'>이번 주 선정 섹터</span> <b>SMH · XLK</b></span><span class='ticker-item'><span class='ticker-label'>공포지수(VIX)</span> <b>18.0 · 중립</b></span><span class='ticker-item'><span class='ticker-label'>기술적 판단</span> <b>매수추천</b></span><span class='ticker-item'><span class='ticker-label'>넥스틴</span> <b class='down'>-2.54%</b></span><span class='ticker-item'><span class='ticker-label'>우리기술투자</span> <b class='up'>+0.18%</b></span><span class='ticker-item'><span class='ticker-label'>마음AI</span> <b class='down'>-1.76%</b></span><span class='ticker-item'><span class='ticker-label'>이번 주 선정 섹터</span> <b>SMH · XLK</b></span></div>
+<!-- SYNC:TICKER_END -->
+</div>
+
 <section class="hero">
   <div class="page" style="padding-top:0;padding-bottom:0">
-    <span class="badge-live">매일 정오 12:00 갱신</span>
+    <span class="badge-live"><span class="live-dot"></span>한국 증시 개장일마다 정오 12:00 자동 갱신</span>
     <h1>미국 섹터가 흔들리면,<br>한국 종목이 움직입니다.</h1>
     <p class="lede">
       미국 핵심 섹터 ETF의 상대모멘텀을 매주 추적해 가장 강한 섹터를 찾고,
@@ -157,19 +519,56 @@ th { color: var(--muted); font-weight: 600; font-size: 12px; }
       AI 리서치 파이프라인의 결과를 매일 공개합니다.
     </p>
     <div class="cta-row">
-      <a class="btn btn-primary" href="picks.html">오늘의 추천 종목 보기</a>
-      <a class="btn btn-secondary" href="strategy.html">전략 어떻게 동작하나요?</a>
+      <button data-route="picks" class="btn btn-primary">오늘의 추천 종목 보기</button>
+      <button data-route="strategy" class="btn btn-secondary">전략 어떻게 동작하나요?</button>
     </div>
+  </div>
+  <div class="hero-chart-wrap">
+    <svg class="hero-chart" viewBox="0 0 700 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="상승 추세를 나타내는 장식용 주가 흐름 일러스트">
+      <line class="grid-line" x1="0" y1="40" x2="700" y2="40"></line>
+      <line class="grid-line" x1="0" y1="100" x2="700" y2="100"></line>
+      <line class="grid-line" x1="0" y1="160" x2="700" y2="160"></line>
+      <polygon class="price-area" points="0,170 60,150 100,165 150,120 200,140 260,90 310,110 360,70 410,95 460,55 510,75 560,40 610,60 660,25 700,35 700,220 0,220"></polygon>
+      <polyline class="price-line" points="0,170 60,150 100,165 150,120 200,140 260,90 310,110 360,70 410,95 460,55 510,75 560,40 610,60 660,25 700,35"></polyline>
+      <circle class="price-dot-glow" cx="700" cy="35" r="14"></circle>
+      <circle class="price-dot" cx="700" cy="35" r="4.5"></circle>
+    </svg>
   </div>
 </section>
 
-<main class="page">
+<main class="page" style="padding-top:28px">
+  <h2 style="margin-top:0">오늘의 핵심 지표</h2>
+  <!-- SYNC:HOME_KPI_START -->
+<div class="kpi-strip">
+    <div class="kpi-item">
+      <div class="kpi-label">보유 종목</div>
+      <div class="kpi-value">3개</div>
+      <div class="kpi-sub">전부 홀딩·손절·익절 판단은 오늘의 픽 참고</div>
+    </div>
+    <div class="kpi-item">
+      <div class="kpi-label">오늘 평균 등락</div>
+      <div class="kpi-value down">-1.37%</div>
+      <div class="kpi-sub">보유 종목 평균</div>
+    </div>
+    <div class="kpi-item">
+      <div class="kpi-label">공포지수(VIX)</div>
+      <div class="kpi-value">18.0</div>
+      <div class="kpi-sub">중립</div>
+    </div>
+    <div class="kpi-item">
+      <div class="kpi-label">이번 주 선정 섹터</div>
+      <div class="kpi-value" style="font-size:16px">SMH · XLK</div>
+      <div class="kpi-sub">반도체 · 기술(S&P 기준)</div>
+    </div>
+  </div>
+<!-- SYNC:HOME_KPI_END -->
+
   <h2>어떻게 다른가요</h2>
   <div class="feature-grid">
     <div class="feature-card">
       <div class="num">01</div>
       <h3>미국 섹터 → 한국 종목, 한 방향 흐름</h3>
-      <p>미국 핵심 섹터 ETF 16개의 상대모멘텀을 토너먼트로 좁혀 가장 강한 2개를 고르고, 그 이슈와 연결된 국내 종목만 후보로 삼습니다. 무작위 급등주 스캔이 아닙니다.</p>
+      <p>미국 핵심 섹터 ETF 17개(사이버보안 포함)의 상대모멘텀을 토너먼트로 좁혀 가장 강한 2개를 고르고, 그 이슈와 연결된 국내 종목만 후보로 삼습니다. 무작위 급등주 스캔이 아닙니다.</p>
     </div>
     <div class="feature-card">
       <div class="num">02</div>
@@ -194,6 +593,14 @@ th { color: var(--muted); font-weight: 600; font-size: 12px; }
     어떤 형태의 매매도 권유하지 않습니다. 실제 투자 판단과 책임은 이용자 본인에게 있습니다.
   </div>
 </main>
+
+<div class="source-strip">
+  <span>KB증권 Open API</span>
+  <span>DART 전자공시</span>
+  <span>FRED 미국 국채·유가</span>
+  <span>한국은행 ECOS</span>
+  <span>Alpha Vantage 뉴스감성</span>
+</div>
 </section>
 
 <section id="route-picks" class="route" hidden>
@@ -210,13 +617,16 @@ th { color: var(--muted); font-weight: 600; font-size: 12px; }
 
   <h2>오늘의 시장 판단</h2>
   <!-- SYNC:MARKET_COMMENTARY_START -->
-<div class='card' style='margin-bottom:16px'><p style='margin:0 0 8px'><b>심리(공포지수)</b> <span class='badge badge-etc'>중립</span><br><span class='muted small'>공포지수(VIX) 18.08 — 탐욕구간도 강한 공포구간도 아닌 평이한 수준입니다. 심리적으로는 뚜렷한 신호가 없습니다.</span></p><p style='margin:0'><b>기술적 지표</b> <span class='badge badge-hit'>매수추천</span><br><span class='muted small'>나스닥 4일 연속 · 코스피 3일 연속 하락한 뒤라 반등 가능성이 큽니다 — 기술적으로는 매수를 추천합니다. 환율이 최근 10영업일 새 -2.2% 하락하며 원화가 강세입니다 — 투자심리에 우호적입니다. WTI 유가가 최근 며칠 새 +6.3% 급등했습니다($97.3) — 에너지 비용 부담 변화가 시장 전반 심리에 영향을 줬을 수 있습니다.</span></p></div>
+<div class='card' style='margin-bottom:16px'><p style='margin:0 0 8px'><b>심리(공포지수)</b> <span class='badge badge-etc'>중립</span><br><span class='muted small'>공포지수(VIX) 18.03 — 탐욕구간도 강한 공포구간도 아닌 평이한 수준입니다. 심리적으로는 뚜렷한 신호가 없습니다.</span></p><p style='margin:0'><b>기술적 지표</b> <span class='badge badge-hit'>매수추천</span><br><span class='muted small'>나스닥 4일 연속 · 코스피 3일 연속 하락한 뒤라 반등 가능성이 큽니다 — 기술적으로는 매수를 추천합니다. 환율이 최근 10영업일 새 -2.2% 하락하며 원화가 강세입니다 — 투자심리에 우호적입니다. WTI 유가가 최근 며칠 새 +6.3% 급등했습니다($97.3) — 에너지 비용 부담 변화가 시장 전반 심리에 영향을 줬을 수 있습니다.</span></p></div>
 <!-- SYNC:MARKET_COMMENTARY_END -->
 
   <h2>오늘 12시 추천종목</h2>
+  <p class="muted small flip-instructions">카드를 클릭(모바일은 탭)하면 뒤집혀서 선정 이유가 보입니다.</p>
+  <div class="flip-scene" id="pick-flip-scene">
   <!-- SYNC:PICK_CARDS_START -->
 <p class='muted small'>이번 기반: <b>SMH</b>(반도체) — AI 반도체·메모리 수요 확대, <b>XLK</b>(기술(S&P 기준)) — 글로벌 대형 IT/플랫폼 강세</p><div class='card-grid'><div class='card'><h3>넥스틴 <span class='muted small'>348210</span></h3><p class='muted small'>68.0/100점 · 추천 1위</p><p class='small' style='margin:8px 0 4px'><b>선정 이유</b></p><ul class='muted small reason-list'><li>연결 고리: 미국 SMH(반도체) → 반도체 웨이퍼 결함 검사 장비 → 넥스틴 → PBR 3.4(고평가) → 거래량 평소 대비 2.8배</li><li>핵심 근거: 테마/모멘텀(확신도 하) · 오늘 -2.54%</li><li>종합점수 68.0/100점</li></ul></div><div class='card'><h3>마음AI <span class='muted small'>377480</span></h3><p class='muted small'>65.5/100점 · 추천 2위</p><p class='small' style='margin:8px 0 4px'><b>선정 이유</b></p><ul class='muted small reason-list'><li>연결 고리: 국내 독립 이슈(계약체결) → 마음AI → PBR 3.2(고평가) → 거래량 평소 대비 1.4배</li><li>핵심 근거: 계약체결(확신도 하) · 오늘 -0.89%</li><li>주의: 재무 리스크 감점 15점</li><li>종합점수 65.5/100점</li></ul></div><div class='card'><h3>우리기술투자 <span class='muted small'>041190</span></h3><p class='muted small'>60.0/100점 · 추천 3위</p><p class='small' style='margin:8px 0 4px'><b>선정 이유</b></p><ul class='muted small reason-list'><li>연결 고리: 미국 IBIT(암호화폐) → 가상자산 거래소(빗썸) 지분 보유 → 우리기술투자 → PBR 0.43(저평가) → 거래량 평소 대비 0.2배</li><li>핵심 근거: 테마/모멘텀(확신도 하) · 오늘 +0.36%</li><li>종합점수 60.0/100점</li></ul></div></div>
 <!-- SYNC:PICK_CARDS_END -->
+  </div>
 
   <h2>오늘 모니터링 종목</h2>
   <!-- SYNC:MONITORING_START -->
@@ -232,7 +642,14 @@ th { color: var(--muted); font-weight: 600; font-size: 12px; }
     투자 조언이 아닌 리서치 참고 자료입니다. 위 데이터는 예측 Agent가 한국 증시 개장일마다 정오에
     자동으로 생성해 이 페이지에 반영한 실제 결과입니다.
   </div>
-</main>
+
+  <script>
+  (function () {
+    // "오늘 12시 추천종목" 카드 3개를 카드 앞면(종목명+점수)/뒷면(선정 이유)으로 나눠
+    // 클릭·탭하면 뒤집히게 만든다 (2026-09-14, 사용자 요청 "카드처럼 뒤집히는 디자인").
+    // sync_site.py가 매일 갱신하는 원본 카드 마크업(dashboard.py 렌더 결과)은 건드리지 않고,
+    // 페이지 로드 시점에 순수 프레젠테이션 목적으로만 감싼다 -- 데이터 동기화와 무관.
+    // build_deploy.py가 각 페이지의 </header>~
 </section>
 
 <section id="route-strategy" class="route" hidden>
@@ -246,8 +663,8 @@ th { color: var(--muted); font-weight: 600; font-size: 12px; }
   <h2>① 해외 — 미국 섹터 로테이션 (매주 토요일)</h2>
   <ol class="step-list">
     <li>
-      <h3>16개 핵심 섹터 ETF 순위 매기기</h3>
-      <p>비트코인·반도체·에너지·바이오텍 등 미국 핵심 섹터 ETF 16개(PTP 세제 대상 종목 제외)의 벤치마크(SPY) 대비 최근 5거래일 상대모멘텀을 계산합니다.</p>
+      <h3>17개 핵심 섹터 ETF 순위 매기기</h3>
+      <p>비트코인·반도체·에너지·바이오텍·사이버보안 등 미국 핵심 섹터 ETF 17개(PTP 세제 대상 종목 제외)의 벤치마크(SPY) 대비 최근 5거래일 상대모멘텀을 계산합니다.</p>
     </li>
     <li>
       <h3>토너먼트로 최종 2개 압축</h3>
@@ -338,7 +755,7 @@ th { color: var(--muted); font-weight: 600; font-size: 12px; }
 
   <h2>오늘 20%+ 급등·거래대금 상위 10종목 중 놓친 게 있었나</h2>
   <!-- SYNC:MISS_AUDIT_START -->
-<div class='table-wrap'><table><thead><tr><th>종목명</th><th>종목코드</th><th>오늘등락률</th><th>거래대금</th><th>왜 놓쳤나</th></tr></thead><tbody><tr><td>광전자 <span class='badge badge-fail'>후보풀 밖</span></td><td>017900</td><td class='up'>+30.00%</td><td>2973.4억</td><td>공시 없음. 지금 다시 확인해보면 등락률 순위 1위로 모멘텀 스캔 범위(상위 50위) 안이지만, 실제 매수 스캔은 12:00 시점이라 그때는 순위가 달라(범위 밖) 못 잡혔을 가능성이 큼</td></tr><tr class='miss-forward'><td colspan='5'><span class='muted small'>향후반영: 장중 순위가 계속 바뀌는 종목이라 스캔 시점 자체를 늘리기보다는, 이런 사례가 반복되면 12:00 스캔을 하루 중 여러 번(예: 시가 직후 추가 스캔)으로 늘리는 걸 검토할 근거가 됩니다. 시가총액 5951억원은 현재 후보 필터 기준(500억원~10.0조원) 안입니다.</span></td></tr><tr><td>샌즈랩 <span class='badge badge-fail'>후보풀 밖</span></td><td>411080</td><td class='up'>+29.22%</td><td>896.5억</td><td>공시 없음. 지금 다시 확인해보면 등락률 순위 9위로 모멘텀 스캔 범위(상위 50위) 안이지만, 실제 매수 스캔은 12:00 시점이라 그때는 순위가 달라(범위 밖) 못 잡혔을 가능성이 큼</td></tr><tr class='miss-forward'><td colspan='5'><span class='muted small'>향후반영: 장중 순위가 계속 바뀌는 종목이라 스캔 시점 자체를 늘리기보다는, 이런 사례가 반복되면 12:00 스캔을 하루 중 여러 번(예: 시가 직후 추가 스캔)으로 늘리는 걸 검토할 근거가 됩니다. 시가총액 1087억원은 현재 후보 필터 기준(500억원~10.0조원) 안입니다.</span></td></tr><tr><td>영풍</td><td>000670</td><td class='up'>+29.91%</td><td>681.6억</td><td>후보였지만 제외됨: 오늘 이미 +29.91% 급등 (제외 기준 5% 이상); 최근 1주일간 이미 +26.62% 급등 (제외 기준 10% 이상)</td></tr><tr class='miss-forward'><td colspan='5'><span class='muted small'>향후반영: 이 전략은 '오늘 이미 급등한 종목은 의도적으로 피하고 급등 전에 미리 담는다'는 방침이라, 이미 크게 오른 종목을 제외한 건 설계대로입니다 -- 반영이 필요한 버그는 아닙니다.</span></td></tr><tr><td>빛샘전자 <span class='badge badge-fail'>후보풀 밖</span></td><td>072950</td><td class='up'>+25.51%</td><td>673.2억</td><td>공시 없음. 지금 다시 확인해보면 등락률 순위 10위로 모멘텀 스캔 범위(상위 50위) 안이지만, 실제 매수 스캔은 12:00 시점이라 그때는 순위가 달라(범위 밖) 못 잡혔을 가능성이 큼</td></tr><tr class='miss-forward'><td colspan='5'><span class='muted small'>향후반영: 장중 순위가 계속 바뀌는 종목이라 스캔 시점 자체를 늘리기보다는, 이런 사례가 반복되면 12:00 스캔을 하루 중 여러 번(예: 시가 직후 추가 스캔)으로 늘리는 걸 검토할 근거가 됩니다. 시가총액 899억원은 현재 후보 필터 기준(500억원~10.0조원) 안입니다.</span></td></tr><tr><td>라온시큐어 <span class='badge badge-fail'>후보풀 밖</span></td><td>042510</td><td class='up'>+23.67%</td><td>609.1억</td><td>공시 없음. 지금 다시 확인해보면 등락률 순위 11위로 모멘텀 스캔 범위(상위 50위) 안이지만, 실제 매수 스캔은 12:00 시점이라 그때는 순위가 달라(범위 밖) 못 잡혔을 가능성이 큼</td></tr><tr class='miss-forward'><td colspan='5'><span class='muted small'>향후반영: 장중 순위가 계속 바뀌는 종목이라 스캔 시점 자체를 늘리기보다는, 이런 사례가 반복되면 12:00 스캔을 하루 중 여러 번(예: 시가 직후 추가 스캔)으로 늘리는 걸 검토할 근거가 됩니다. 시가총액 1288억원은 현재 후보 필터 기준(500억원~10.0조원) 안입니다.</span></td></tr><tr><td>위메이드맥스 <span class='badge badge-fail'>후보풀 밖</span></td><td>101730</td><td class='up'>+29.84%</td><td>585.7억</td><td>공시 없음. 지금 다시 확인해보면 등락률 순위 7위로 모멘텀 스캔 범위(상위 50위) 안이지만, 실제 매수 스캔은 12:00 시점이라 그때는 순위가 달라(범위 밖) 못 잡혔을 가능성이 큼</td></tr><tr class='miss-forward'><td colspan='5'><span class='muted small'>향후반영: 장중 순위가 계속 바뀌는 종목이라 스캔 시점 자체를 늘리기보다는, 이런 사례가 반복되면 12:00 스캔을 하루 중 여러 번(예: 시가 직후 추가 스캔)으로 늘리는 걸 검토할 근거가 됩니다. 시가총액 4358억원은 현재 후보 필터 기준(500억원~10.0조원) 안입니다.</span></td></tr><tr><td>동국산업 <span class='badge badge-fail'>후보풀 밖</span></td><td>005160</td><td class='up'>+21.85%</td><td>142.7억</td><td>공시 없음. 지금 다시 확인해보면 등락률 순위 13위로 모멘텀 스캔 범위(상위 50위) 안이지만, 실제 매수 스캔은 12:00 시점이라 그때는 순위가 달라(범위 밖) 못 잡혔을 가능성이 큼</td></tr><tr class='miss-forward'><td colspan='5'><span class='muted small'>향후반영: 장중 순위가 계속 바뀌는 종목이라 스캔 시점 자체를 늘리기보다는, 이런 사례가 반복되면 12:00 스캔을 하루 중 여러 번(예: 시가 직후 추가 스캔)으로 늘리는 걸 검토할 근거가 됩니다. 시가총액 1679억원은 현재 후보 필터 기준(500억원~10.0조원) 안입니다.</span></td></tr><tr><td>한국첨단소재 <span class='badge badge-fail'>후보풀 밖</span></td><td>062970</td><td class='up'>+29.90%</td><td>119.3억</td><td>공시 없음. 지금 다시 확인해보면 등락률 순위 6위로 모멘텀 스캔 범위(상위 50위) 안이지만, 실제 매수 스캔은 12:00 시점이라 그때는 순위가 달라(범위 밖) 못 잡혔을 가능성이 큼</td></tr><tr class='miss-forward'><td colspan='5'><span class='muted small'>향후반영: 장중 순위가 계속 바뀌는 종목이라 스캔 시점 자체를 늘리기보다는, 이런 사례가 반복되면 12:00 스캔을 하루 중 여러 번(예: 시가 직후 추가 스캔)으로 늘리는 걸 검토할 근거가 됩니다. 시가총액 779억원은 현재 후보 필터 기준(500억원~10.0조원) 안입니다.</span></td></tr><tr><td>인피니트헬스케어 <span class='badge badge-fail'>후보풀 밖</span></td><td>071200</td><td class='up'>+30.00%</td><td>63.2억</td><td>공시 없음. 지금 다시 확인해보면 등락률 순위 2위로 모멘텀 스캔 범위(상위 50위) 안이지만, 실제 매수 스캔은 12:00 시점이라 그때는 순위가 달라(범위 밖) 못 잡혔을 가능성이 큼</td></tr><tr class='miss-forward'><td colspan='5'><span class='muted small'>향후반영: 장중 순위가 계속 바뀌는 종목이라 스캔 시점 자체를 늘리기보다는, 이런 사례가 반복되면 12:00 스캔을 하루 중 여러 번(예: 시가 직후 추가 스캔)으로 늘리는 걸 검토할 근거가 됩니다. 시가총액 2759억원은 현재 후보 필터 기준(500억원~10.0조원) 안입니다.</span></td></tr><tr><td>아티스트컴퍼니 <span class='badge badge-fail'>후보풀 밖</span></td><td>321820</td><td class='up'>+29.94%</td><td>37.2억</td><td>공시 없음. 지금 다시 확인해보면 등락률 순위 4위로 모멘텀 스캔 범위(상위 50위) 안이지만, 실제 매수 스캔은 12:00 시점이라 그때는 순위가 달라(범위 밖) 못 잡혔을 가능성이 큼</td></tr><tr class='miss-forward'><td colspan='5'><span class='muted small'>향후반영: 장중 순위가 계속 바뀌는 종목이라 스캔 시점 자체를 늘리기보다는, 이런 사례가 반복되면 12:00 스캔을 하루 중 여러 번(예: 시가 직후 추가 스캔)으로 늘리는 걸 검토할 근거가 됩니다. 시가총액 528억원은 현재 후보 필터 기준(500억원~10.0조원) 안입니다.</span></td></tr></tbody></table></div>
+<div class='table-wrap'><table><thead><tr><th>종목명</th><th>종목코드</th><th>오늘등락률</th><th>거래대금</th><th>왜 놓쳤나</th></tr></thead><tbody><tr><td>광전자 <span class='badge badge-fail'>후보풀 밖</span></td><td>017900</td><td class='up'>+30.00%</td><td>2973.8억</td><td>공시 없음. 지금 다시 확인해보면 등락률 순위 1위로 모멘텀 스캔 범위(상위 50위) 안이지만, 실제 매수 스캔은 12:00 시점이라 그때는 순위가 달라(범위 밖) 못 잡혔을 가능성이 큼</td></tr><tr class='miss-forward'><td colspan='5'><span class='muted small'>향후반영: 장중 순위가 계속 바뀌는 종목이라 스캔 시점 자체를 늘리기보다는, 이런 사례가 반복되면 12:00 스캔을 하루 중 여러 번(예: 시가 직후 추가 스캔)으로 늘리는 걸 검토할 근거가 됩니다. 시가총액 5951억원은 현재 후보 필터 기준(500억원~10.0조원) 안입니다.</span></td></tr><tr><td>샌즈랩 <span class='badge badge-fail'>후보풀 밖</span></td><td>411080</td><td class='up'>+29.76%</td><td>911.3억</td><td>공시 없음. 지금 다시 확인해보면 등락률 순위 9위로 모멘텀 스캔 범위(상위 50위) 안이지만, 실제 매수 스캔은 12:00 시점이라 그때는 순위가 달라(범위 밖) 못 잡혔을 가능성이 큼</td></tr><tr class='miss-forward'><td colspan='5'><span class='muted small'>향후반영: 장중 순위가 계속 바뀌는 종목이라 스캔 시점 자체를 늘리기보다는, 이런 사례가 반복되면 12:00 스캔을 하루 중 여러 번(예: 시가 직후 추가 스캔)으로 늘리는 걸 검토할 근거가 됩니다. 시가총액 1092억원은 현재 후보 필터 기준(500억원~10.0조원) 안입니다.</span></td></tr><tr><td>빛샘전자 <span class='badge badge-fail'>후보풀 밖</span></td><td>072950</td><td class='up'>+27.64%</td><td>693.3억</td><td>공시 없음. 지금 다시 확인해보면 등락률 순위 11위로 모멘텀 스캔 범위(상위 50위) 안이지만, 실제 매수 스캔은 12:00 시점이라 그때는 순위가 달라(범위 밖) 못 잡혔을 가능성이 큼</td></tr><tr class='miss-forward'><td colspan='5'><span class='muted small'>향후반영: 장중 순위가 계속 바뀌는 종목이라 스캔 시점 자체를 늘리기보다는, 이런 사례가 반복되면 12:00 스캔을 하루 중 여러 번(예: 시가 직후 추가 스캔)으로 늘리는 걸 검토할 근거가 됩니다. 시가총액 915억원은 현재 후보 필터 기준(500억원~10.0조원) 안입니다.</span></td></tr><tr><td>영풍</td><td>000670</td><td class='up'>+29.91%</td><td>681.7억</td><td>후보였지만 제외됨: 오늘 이미 +29.91% 급등 (제외 기준 5% 이상); 최근 1주일간 이미 +26.62% 급등 (제외 기준 10% 이상)</td></tr><tr class='miss-forward'><td colspan='5'><span class='muted small'>향후반영: 이 전략은 '오늘 이미 급등한 종목은 의도적으로 피하고 급등 전에 미리 담는다'는 방침이라, 이미 크게 오른 종목을 제외한 건 설계대로입니다 -- 반영이 필요한 버그는 아닙니다.</span></td></tr><tr><td>라온시큐어 <span class='badge badge-fail'>후보풀 밖</span></td><td>042510</td><td class='up'>+22.07%</td><td>612.8억</td><td>공시 없음. 지금 다시 확인해보면 등락률 순위 13위로 모멘텀 스캔 범위(상위 50위) 안이지만, 실제 매수 스캔은 12:00 시점이라 그때는 순위가 달라(범위 밖) 못 잡혔을 가능성이 큼</td></tr><tr class='miss-forward'><td colspan='5'><span class='muted small'>향후반영: 장중 순위가 계속 바뀌는 종목이라 스캔 시점 자체를 늘리기보다는, 이런 사례가 반복되면 12:00 스캔을 하루 중 여러 번(예: 시가 직후 추가 스캔)으로 늘리는 걸 검토할 근거가 됩니다. 시가총액 1272억원은 현재 후보 필터 기준(500억원~10.0조원) 안입니다.</span></td></tr><tr><td>위메이드맥스 <span class='badge badge-fail'>후보풀 밖</span></td><td>101730</td><td class='up'>+29.84%</td><td>585.9억</td><td>공시 없음. 지금 다시 확인해보면 등락률 순위 7위로 모멘텀 스캔 범위(상위 50위) 안이지만, 실제 매수 스캔은 12:00 시점이라 그때는 순위가 달라(범위 밖) 못 잡혔을 가능성이 큼</td></tr><tr class='miss-forward'><td colspan='5'><span class='muted small'>향후반영: 장중 순위가 계속 바뀌는 종목이라 스캔 시점 자체를 늘리기보다는, 이런 사례가 반복되면 12:00 스캔을 하루 중 여러 번(예: 시가 직후 추가 스캔)으로 늘리는 걸 검토할 근거가 됩니다. 시가총액 4358억원은 현재 후보 필터 기준(500억원~10.0조원) 안입니다.</span></td></tr><tr><td>동국산업 <span class='badge badge-fail'>후보풀 밖</span></td><td>005160</td><td class='up'>+22.05%</td><td>143.5억</td><td>공시 없음. 지금 다시 확인해보면 등락률 순위 14위로 모멘텀 스캔 범위(상위 50위) 안이지만, 실제 매수 스캔은 12:00 시점이라 그때는 순위가 달라(범위 밖) 못 잡혔을 가능성이 큼</td></tr><tr class='miss-forward'><td colspan='5'><span class='muted small'>향후반영: 장중 순위가 계속 바뀌는 종목이라 스캔 시점 자체를 늘리기보다는, 이런 사례가 반복되면 12:00 스캔을 하루 중 여러 번(예: 시가 직후 추가 스캔)으로 늘리는 걸 검토할 근거가 됩니다. 시가총액 1682억원은 현재 후보 필터 기준(500억원~10.0조원) 안입니다.</span></td></tr><tr><td>한국첨단소재 <span class='badge badge-fail'>후보풀 밖</span></td><td>062970</td><td class='up'>+29.90%</td><td>119.3억</td><td>공시 없음. 지금 다시 확인해보면 등락률 순위 6위로 모멘텀 스캔 범위(상위 50위) 안이지만, 실제 매수 스캔은 12:00 시점이라 그때는 순위가 달라(범위 밖) 못 잡혔을 가능성이 큼</td></tr><tr class='miss-forward'><td colspan='5'><span class='muted small'>향후반영: 장중 순위가 계속 바뀌는 종목이라 스캔 시점 자체를 늘리기보다는, 이런 사례가 반복되면 12:00 스캔을 하루 중 여러 번(예: 시가 직후 추가 스캔)으로 늘리는 걸 검토할 근거가 됩니다. 시가총액 779억원은 현재 후보 필터 기준(500억원~10.0조원) 안입니다.</span></td></tr><tr><td>인피니트헬스케어 <span class='badge badge-fail'>후보풀 밖</span></td><td>071200</td><td class='up'>+30.00%</td><td>63.2억</td><td>공시 없음. 지금 다시 확인해보면 등락률 순위 2위로 모멘텀 스캔 범위(상위 50위) 안이지만, 실제 매수 스캔은 12:00 시점이라 그때는 순위가 달라(범위 밖) 못 잡혔을 가능성이 큼</td></tr><tr class='miss-forward'><td colspan='5'><span class='muted small'>향후반영: 장중 순위가 계속 바뀌는 종목이라 스캔 시점 자체를 늘리기보다는, 이런 사례가 반복되면 12:00 스캔을 하루 중 여러 번(예: 시가 직후 추가 스캔)으로 늘리는 걸 검토할 근거가 됩니다. 시가총액 2759억원은 현재 후보 필터 기준(500억원~10.0조원) 안입니다.</span></td></tr><tr><td>아티스트컴퍼니 <span class='badge badge-fail'>후보풀 밖</span></td><td>321820</td><td class='up'>+29.94%</td><td>37.2억</td><td>공시 없음. 지금 다시 확인해보면 등락률 순위 4위로 모멘텀 스캔 범위(상위 50위) 안이지만, 실제 매수 스캔은 12:00 시점이라 그때는 순위가 달라(범위 밖) 못 잡혔을 가능성이 큼</td></tr><tr class='miss-forward'><td colspan='5'><span class='muted small'>향후반영: 장중 순위가 계속 바뀌는 종목이라 스캔 시점 자체를 늘리기보다는, 이런 사례가 반복되면 12:00 스캔을 하루 중 여러 번(예: 시가 직후 추가 스캔)으로 늘리는 걸 검토할 근거가 됩니다. 시가총액 528억원은 현재 후보 필터 기준(500억원~10.0조원) 안입니다.</span></td></tr></tbody></table></div>
 <!-- SYNC:MISS_AUDIT_END -->
 
   <h2>일별 현황 이력</h2>
@@ -399,8 +816,9 @@ th { color: var(--muted); font-weight: 600; font-size: 12px; }
 
   <h2>데이터 출처</h2>
   <p class="muted">
-    국내 공시(DART), 실시간 시세(KB증권 Open API), 공포지수(VIX), 미국 국채금리차(FRED),
-    원/달러 환율(한국은행 ECOS), 글로벌 뉴스톤(GDELT) 등 공개 데이터를 사용합니다.
+    국내 공시(DART), 실시간 시세(KB증권 Open API), 공포지수(VIX), 미국 국채금리차·유가(FRED),
+    원/달러 환율(한국은행 ECOS), 미국 종목 뉴스 감성(Alpha Vantage), 글로벌 뉴스톤(GDELT) 등
+    공개 데이터를 사용합니다.
   </p>
 
   <div class="disclaimer">
