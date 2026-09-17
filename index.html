@@ -637,53 +637,6 @@ tbody tr:last-child td { border-bottom: none; }
   color: var(--muted);
 }
 
-/* Email subscribe */
-.subscribe-box {
-  background: var(--card-bg);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 32px 28px;
-  margin: 32px 0;
-  box-shadow: var(--shadow);
-  text-align: center;
-}
-.subscribe-box h2 { margin: 0 0 8px; border: none; padding: 0; }
-.subscribe-box p { color: var(--muted); font-size: 14px; max-width: 460px; margin: 0 auto 18px; }
-.subscribe-form {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-  flex-wrap: wrap;
-  max-width: 440px;
-  margin: 0 auto;
-}
-.subscribe-form input[type="email"] {
-  flex: 1 1 240px;
-  padding: 11px 16px;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  background: var(--bg);
-  color: var(--text);
-  font-size: 14px;
-  font-family: inherit;
-}
-.subscribe-form input[type="email"]:focus { outline: 2px solid var(--brand); outline-offset: 1px; }
-.subscribe-form button {
-  padding: 11px 22px;
-  border-radius: 8px;
-  border: none;
-  background: var(--accent);
-  color: var(--bg);
-  font-weight: 700;
-  font-size: 14px;
-  cursor: pointer;
-  font-family: inherit;
-}
-.subscribe-form button:disabled { opacity: 0.6; cursor: default; }
-.subscribe-status { margin: 12px 0 0; font-size: 13px; min-height: 18px; }
-.subscribe-status.ok { color: var(--success); }
-.subscribe-status.err { color: var(--danger); }
-
 /* Data source strip */
 .source-strip {
   display: flex;
@@ -727,6 +680,15 @@ tbody tr:last-child td { border-bottom: none; }
 }
 
 </style>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0a0c10">
+<link rel="icon" href="icons/favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="정오의 주식매매">
+<script src="pwa.js" defer></script>
 </head>
 <body>
 <header class="site-header">
@@ -745,23 +707,23 @@ tbody tr:last-child td { border-bottom: none; }
 <section id="route-home" class="route">
 <div class="ticker-tape">
   <!-- SYNC:TICKER_START -->
-<div class='ticker-track'><span class='ticker-item'><span class='ticker-label'>공포지수(VIX)</span> <b>15.9 · 중립</b></span><span class='ticker-item'><span class='ticker-label'>기술적 판단</span> <b>매수추천</b></span><span class='ticker-item'><span class='ticker-label'>넥스틴</span> <b class='flat'>+0.00%</b></span><span class='ticker-item'><span class='ticker-label'>마음AI</span> <b class='down'>-0.70%</b></span><span class='ticker-item'><span class='ticker-label'>대우건설</span> <b class='down'>-0.69%</b></span><span class='ticker-item'><span class='ticker-label'>이번 주 선정 섹터</span> <b>SMH · XLK</b></span><span class='ticker-item'><span class='ticker-label'>공포지수(VIX)</span> <b>15.9 · 중립</b></span><span class='ticker-item'><span class='ticker-label'>기술적 판단</span> <b>매수추천</b></span><span class='ticker-item'><span class='ticker-label'>넥스틴</span> <b class='flat'>+0.00%</b></span><span class='ticker-item'><span class='ticker-label'>마음AI</span> <b class='down'>-0.70%</b></span><span class='ticker-item'><span class='ticker-label'>대우건설</span> <b class='down'>-0.69%</b></span><span class='ticker-item'><span class='ticker-label'>이번 주 선정 섹터</span> <b>SMH · XLK</b></span></div>
+<div class='ticker-track'><span class='ticker-item'><span class='ticker-label'>공포지수(VIX)</span> <b>15.7 · 중립</b></span><span class='ticker-item'><span class='ticker-label'>기술적 판단</span> <b>매수추천</b></span><span class='ticker-item'><span class='ticker-label'>넥스틴</span> <b class='flat'>+0.00%</b></span><span class='ticker-item'><span class='ticker-label'>마음AI</span> <b class='down'>-0.70%</b></span><span class='ticker-item'><span class='ticker-label'>대우건설</span> <b class='down'>-0.69%</b></span><span class='ticker-item'><span class='ticker-label'>이번 주 선정 섹터</span> <b>SMH · XLK</b></span><span class='ticker-item'><span class='ticker-label'>공포지수(VIX)</span> <b>15.7 · 중립</b></span><span class='ticker-item'><span class='ticker-label'>기술적 판단</span> <b>매수추천</b></span><span class='ticker-item'><span class='ticker-label'>넥스틴</span> <b class='flat'>+0.00%</b></span><span class='ticker-item'><span class='ticker-label'>마음AI</span> <b class='down'>-0.70%</b></span><span class='ticker-item'><span class='ticker-label'>대우건설</span> <b class='down'>-0.69%</b></span><span class='ticker-item'><span class='ticker-label'>이번 주 선정 섹터</span> <b>SMH · XLK</b></span></div>
 <!-- SYNC:TICKER_END -->
 </div>
 
 <section class="hero">
   <div class="page" style="padding-top:0;padding-bottom:0">
     <span class="badge-live"><span class="live-dot"></span>한국 증시 개장일마다 정오 12:00 자동 갱신</span>
-    <h1>미국 섹터가 흔들리면,<br>한국 종목이 움직입니다.</h1>
+    <h1>미국의 밤이 끝나면,<br>한국의 정오가 시작됩니다.</h1>
     <p class="lede">
-      미국 핵심 섹터 ETF의 상대모멘텀을 매주 추적해 가장 강한 섹터를 찾고,
-      그 섹터와 연결된 한국 종목을 매일 정오 재평가합니다.
-      공시·실시간 모멘텀·시장 전체 분위기(VIX 등)까지 종합해 점수를 매기는
-      AI 리서치 파이프라인의 결과를 매일 공개합니다.
+      미국 핵심 섹터 ETF의 상대모멘텀으로 이번 주 가장 강한 흐름을 가려내고,
+      그 흐름과 맞닿은 한국 종목을 매일 정오 다시 채점합니다.
+      공시, 실시간 수급, 시장 심리(VIX)까지 하나의 점수로 정리한 결과를
+      가감 없이 매일 공개합니다.
     </p>
     <div class="cta-row">
       <button data-route="picks" class="btn btn-primary">오늘의 추천 종목 보기</button>
-      <button data-route="strategy" class="btn btn-secondary">전략 어떻게 동작하나요?</button>
+      <button data-route="strategy" class="btn btn-secondary">전략 살펴보기</button>
     </div>
   </div>
 
@@ -779,7 +741,7 @@ tbody tr:last-child td { border-bottom: none; }
 </section>
 
 <!-- SYNC:PROOF_START -->
-<div class='proof-strip reveal'><div class='proof-item'><div class='proof-value'>16개</div><div class='proof-label'>매일 추적하는 미국 핵심 섹터</div></div><div class='proof-item'><div class='proof-value'>26건</div><div class='proof-label'>누적 예측·검증 기록</div></div><div class='proof-item'><div class='proof-value'>매일 12시</div><div class='proof-label'>자동 갱신 (한국 증시 개장일)</div></div><div class='proof-item'><div class='proof-value'>무료</div><div class='proof-label'>이메일 구독 가능</div></div></div>
+<div class='proof-strip reveal'><div class='proof-item'><div class='proof-value'>16개</div><div class='proof-label'>매일 추적하는 미국 핵심 섹터</div></div><div class='proof-item'><div class='proof-value'>26건</div><div class='proof-label'>누적 예측·검증 기록</div></div><div class='proof-item'><div class='proof-value'>매일 12시</div><div class='proof-label'>자동 갱신 (한국 증시 개장일)</div></div><div class='proof-item'><div class='proof-value'>무료</div><div class='proof-label'>홈 화면 앱 설치 가능</div></div></div>
 <!-- SYNC:PROOF_END -->
 
 <main class="page" style="padding-top:28px">
@@ -798,7 +760,7 @@ tbody tr:last-child td { border-bottom: none; }
     </div>
     <div class="kpi-item">
       <div class="kpi-label">공포지수(VIX)</div>
-      <div class="kpi-value">15.9</div>
+      <div class="kpi-value">15.7</div>
       <div class="kpi-sub">중립</div>
     </div>
     <div class="kpi-item">
@@ -809,8 +771,8 @@ tbody tr:last-child td { border-bottom: none; }
   </div>
 <!-- SYNC:HOME_KPI_END -->
 
-  <span class="eyebrow">핵심 차별점</span>
-  <h2>어떻게 다른가요</h2>
+  <span class="eyebrow">운영 원칙</span>
+  <h2>선정 기준은 감이 아니라 구조입니다</h2>
   <div class="feature-grid reveal">
     <div class="feature-card">
       <div class="num">01</div>
@@ -834,17 +796,6 @@ tbody tr:last-child td { border-bottom: none; }
     </div>
   </div>
 
-  <div class="subscribe-box reveal">
-    <span class="eyebrow">무료 구독</span>
-    <h2>매일 정오, 메일로 받아보기</h2>
-    <p>이메일을 남기면 "정오의 주식매매" 리포트를 매일 정오(한국 증시 개장일) 메일로 보내드립니다. 언제든 메일 하단 링크로 구독을 끊을 수 있습니다.</p>
-    <form id="subscribe-form" class="subscribe-form">
-      <input type="email" id="subscribe-email" placeholder="이메일 주소" required autocomplete="email">
-      <button type="submit" id="subscribe-submit">구독하기</button>
-    </form>
-    <p class="subscribe-status" id="subscribe-status" role="status" aria-live="polite"></p>
-  </div>
-
   <div class="disclaimer">
     <strong>투자 조언이 아닌 리서치 참고 자료입니다.</strong>
     이 사이트는 AI 리서치 파이프라인이 생성한 분석 결과를 그대로 공유하는 실험적 프로젝트이며,
@@ -853,74 +804,8 @@ tbody tr:last-child td { border-bottom: none; }
 
   <script>
   (function () {
-    // 이메일 구독 폼 (2026-09-14 신설, 사용자 요청 "웹페이지에 메일 신청하면 보내줄 수
-    // 있게 하는 것도 필요하겠다"). GitHub Pages는 정적 사이트라 서버가 없어서, 신청을
-    // Supabase(무료 백엔드, 프로젝트별 REST API 제공)의 테이블에 바로 저장한다.
-    // SUPABASE_URL/SUPABASE_ANON_KEY는 "공개해도 되는" anon 키다(Supabase Row Level
-    // Security로 "삽입만 허용, 조회/삭제 불가" 정책을 걸어두면 이 키가 노출돼도
-    // 다른 사람 이메일을 읽거나 지울 수 없다) -- 자세한 설정은 site/config/README.md 참고.
-    // TODO: 아래 두 값을 실제 Supabase 프로젝트 값으로 채우기 전까지는 폼이 안내 메시지만
-    // 보여주고 실제로 저장하지 않는다(빈 문자열일 때 조기 종료).
-    var SUPABASE_URL = "";
-    var SUPABASE_ANON_KEY = "";
-
-    var form = document.getElementById("subscribe-form");
-    var status = document.getElementById("subscribe-status");
-    var submitBtn = document.getElementById("subscribe-submit");
-    if (!form) return;
-
-    form.addEventListener("submit", function (e) {
-      e.preventDefault();
-      var email = document.getElementById("subscribe-email").value.trim();
-      if (!email) return;
-
-      if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-        status.textContent = "구독 신청 기능이 아직 준비 중입니다. 곧 열릴 예정이에요.";
-        status.className = "subscribe-status err";
-        return;
-      }
-
-      submitBtn.disabled = true;
-      status.textContent = "";
-      status.className = "subscribe-status";
-
-      fetch(SUPABASE_URL + "/rest/v1/subscribers", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "apikey": SUPABASE_ANON_KEY,
-          "Authorization": "Bearer " + SUPABASE_ANON_KEY,
-          "Prefer": "return=minimal",
-        },
-        body: JSON.stringify({ email: email }),
-      })
-        .then(function (res) {
-          submitBtn.disabled = false;
-          if (res.ok) {
-            status.textContent = "구독 신청 완료! 다음 개장일 정오부터 메일로 받아보실 수 있어요.";
-            status.className = "subscribe-status ok";
-            form.reset();
-          } else if (res.status === 409) {
-            status.textContent = "이미 구독 중인 이메일이에요.";
-            status.className = "subscribe-status ok";
-          } else {
-            status.textContent = "신청 중 문제가 생겼어요. 잠시 후 다시 시도해주세요.";
-            status.className = "subscribe-status err";
-          }
-        })
-        .catch(function () {
-          submitBtn.disabled = false;
-          status.textContent = "신청 중 문제가 생겼어요. 잠시 후 다시 시도해주세요.";
-          status.className = "subscribe-status err";
-        });
-    });
-  })();
-  </script>
-
-  <script>
-  (function () {
     // 스크롤 리빌 + 숫자 카운트업 (2026-09-14, 사용자 피드백 "AI가 만든 것 같다, 밸리처럼
-    // 역동적이게 해달라"): 정적으로 한 번에 다 보여주지 않고, 실측 지표/핵심 지표/특징/구독
+    // 역동적이게 해달라"): 정적으로 한 번에 다 보여주지 않고, 실측 지표/핵심 지표/특징
     // 박스가 스크롤로 화면에 들어올 때 올라오면서 나타나고, 실측 지표 숫자는 0에서
     // 목표값까지 세는 애니메이션을 준다.
     var targets = document.querySelectorAll(".reveal");
@@ -998,7 +883,7 @@ tbody tr:last-child td { border-bottom: none; }
 
   <h2>오늘의 시장 판단</h2>
   <!-- SYNC:MARKET_COMMENTARY_START -->
-<div class='card' style='margin-bottom:16px'><p style='margin:0 0 8px'><b>심리(공포지수)</b> <span class='badge badge-etc'>중립</span><br><span class='muted small'>공포지수(VIX) 15.92 — 탐욕구간도 강한 공포구간도 아닌 평이한 수준입니다. 심리적으로는 뚜렷한 신호가 없습니다.</span></p><p style='margin:0'><b>기술적 지표</b> <span class='badge badge-hit'>매수추천</span><br><span class='muted small'>코스피 대리지표가 20일선(단기 지지선)에 닿아 있어 지지를 기대할 수 있습니다, 나스닥 대리지표가 20일선(단기 지지선)에 닿아 있어 지지를 기대할 수 있습니다 — 기술적으로는 매수를 추천합니다. WTI 유가가 최근 며칠 새 +13.6% 급등했습니다($107.0) — 에너지 비용 부담 변화가 시장 전반 심리에 영향을 줬을 수 있습니다.</span></p></div>
+<div class='card' style='margin-bottom:16px'><p style='margin:0 0 8px'><b>심리(공포지수)</b> <span class='badge badge-etc'>중립</span><br><span class='muted small'>공포지수(VIX) 15.70 — 탐욕구간도 강한 공포구간도 아닌 평이한 수준입니다. 심리적으로는 뚜렷한 신호가 없습니다.</span></p><p style='margin:0'><b>기술적 지표</b> <span class='badge badge-hit'>매수추천</span><br><span class='muted small'>코스피 대리지표가 20일선(단기 지지선)에 닿아 있어 지지를 기대할 수 있습니다, 나스닥 대리지표가 20일선(단기 지지선)에 닿아 있어 지지를 기대할 수 있습니다 — 기술적으로는 매수를 추천합니다. WTI 유가가 최근 며칠 새 +13.6% 급등했습니다($107.0) — 에너지 비용 부담 변화가 시장 전반 심리에 영향을 줬을 수 있습니다.</span></p></div>
 <!-- SYNC:MARKET_COMMENTARY_END -->
 
   <h2>오늘 12시 추천종목</h2>
