@@ -239,6 +239,175 @@ p { margin: 0 0 12px; }
 .kpi-value.down { color: var(--down); }
 .kpi-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
 
+/* Eyebrow label (섹션 제목 위 작은 라벨) */
+.eyebrow {
+  display: inline-block;
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: var(--brand);
+  background: var(--brand-soft);
+  padding: 4px 12px;
+  border-radius: 999px;
+}
+
+/* Proof strip (실측 지표, hero 아래) — 없는 사용자 수·수상 내역을 지어내지 않고
+   이 프로젝트가 실제로 가진 수치(섹터 수/누적 예측 건수/갱신 주기)만 보여준다. */
+.proof-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 0 20px 44px;
+}
+.proof-item { padding: 0 16px; text-align: center; border-left: 1px solid var(--border); transition: transform 0.2s ease; }
+.proof-item:first-child { border-left: none; }
+.proof-item:hover { transform: translateY(-2px); }
+.proof-value { font-size: 26px; font-weight: 800; color: var(--text); letter-spacing: -0.01em; font-variant-numeric: tabular-nums; transition: color 0.2s ease; }
+.proof-item:hover .proof-value { color: var(--brand); }
+.proof-label { font-size: 12px; color: var(--muted); margin-top: 4px; line-height: 1.4; }
+
+/* Scroll reveal + hover lift (2026-09-14, 사용자 피드백 "AI가 만든 것 같다, 역동적이게
+   해달라") — 정적으로 한 번에 다 보여주지 않고, 스크롤해서 실제로 보일 때 올라오면서
+   나타나게 하고 숫자는 세는 애니메이션을 준다. prefers-reduced-motion이면 즉시 다 보여준다. */
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal.is-visible { opacity: 1; transform: translateY(0); }
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; transition: none; }
+}
+
+.feature-card, .kpi-item {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.15s ease;
+}
+.feature-card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px -14px rgba(0,0,0,0.35); border-color: var(--brand); }
+.kpi-item:hover { background: var(--card-bg-2); }
+
+/* Cosmic panel ("수익률 현황" 페이지, 2026-09-17 사용자 요청 "조금 더 고급스러운 디자인으로,
+   3D적으로 인터스텔라 느낌나게, 모델이 하나 있으면 좋겠어"). 실제 사람 사진은 만들 수 없어서
+   (허위 인물 이미지가 될 위험) 대신 우주비행사 실루엣 SVG를 그렸다 -- "인터스텔라" 무드에도
+   더 잘 맞는다고 판단. 이 패널은 사이트 라이트/다크 모드와 무관하게 항상 같은 우주 배경을
+   유지하는 의도적 단일 톤 구간이다(히어로 영상과 같은 방식) -- var(--brand)만 사이트
+   아이덴티티 색과 연결한다. */
+.cosmic-panel {
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+  padding: 40px 32px;
+  margin: 24px 0 32px;
+  background:
+    radial-gradient(ellipse 700px 400px at 85% 20%, rgba(180, 83, 9, 0.18), transparent 60%),
+    linear-gradient(160deg, #05060a 0%, #0b0e16 55%, #05060a 100%);
+  box-shadow: 0 30px 80px -30px rgba(0, 0, 0, 0.6), inset 0 0 0 1px rgba(251, 191, 36, 0.12);
+  color: #e8eaed;
+}
+.cosmic-starfield {
+  position: absolute;
+  inset: 0;
+  opacity: 0.8;
+  background-image:
+    radial-gradient(1.6px 1.6px at 12% 22%, #fff, transparent),
+    radial-gradient(1.2px 1.2px at 28% 68%, #fff, transparent),
+    radial-gradient(1.8px 1.8px at 45% 15%, #fff, transparent),
+    radial-gradient(1.2px 1.2px at 62% 42%, #fff, transparent),
+    radial-gradient(1.5px 1.5px at 78% 78%, #fff, transparent),
+    radial-gradient(1.1px 1.1px at 88% 30%, #fff, transparent),
+    radial-gradient(1.4px 1.4px at 35% 85%, #fff, transparent),
+    radial-gradient(1.1px 1.1px at 8% 55%, #fff, transparent),
+    radial-gradient(1.6px 1.6px at 95% 60%, #fff, transparent),
+    radial-gradient(1.2px 1.2px at 55% 55%, #fff, transparent);
+  background-repeat: repeat;
+  background-size: 340px 260px;
+  animation: cosmic-twinkle 6s ease-in-out infinite;
+}
+@keyframes cosmic-twinkle { 0%, 100% { opacity: 0.55; } 50% { opacity: 0.95; } }
+.cosmic-glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(40px);
+  pointer-events: none;
+}
+.cosmic-glow-a { width: 260px; height: 260px; right: -60px; top: -60px; background: radial-gradient(circle, rgba(251, 191, 36, 0.35), transparent 70%); }
+.cosmic-glow-b { width: 200px; height: 200px; left: 10%; bottom: -80px; background: radial-gradient(circle, rgba(180, 83, 9, 0.28), transparent 70%); }
+.cosmic-figure {
+  position: absolute;
+  right: 4%;
+  bottom: 0;
+  height: 92%;
+  width: auto;
+  opacity: 0.92;
+  filter: drop-shadow(0 20px 30px rgba(0, 0, 0, 0.5));
+  animation: cosmic-float 5s ease-in-out infinite;
+  transform-style: preserve-3d;
+}
+@keyframes cosmic-float {
+  0%, 100% { transform: translateY(0) rotateZ(-1.5deg) rotateY(6deg); }
+  50% { transform: translateY(-14px) rotateZ(1.5deg) rotateY(-6deg); }
+}
+.cosmic-content { position: relative; z-index: 1; max-width: 640px; }
+.cosmic-content .eyebrow { background: rgba(251, 191, 36, 0.15); color: #fbbf24; }
+.cosmic-heading { color: #fff; border: none; margin: 10px 0 20px; font-size: 22px; letter-spacing: -0.01em; }
+.cosmic-stat-row { display: flex; flex-wrap: wrap; gap: 14px; }
+.cosmic-stat {
+  flex: 1 1 130px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(251, 191, 36, 0.18);
+  border-radius: 14px;
+  padding: 16px 14px;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+.cosmic-stat:hover {
+  transform: perspective(600px) rotateX(6deg) translateY(-3px);
+  border-color: rgba(251, 191, 36, 0.5);
+  box-shadow: 0 16px 30px -14px rgba(251, 191, 36, 0.35);
+}
+.cosmic-stat-label { font-size: 11.5px; color: #9aa1ad; font-weight: 600; margin-bottom: 6px; }
+.cosmic-stat-value { font-size: 26px; font-weight: 800; color: #fff; font-variant-numeric: tabular-nums; text-shadow: 0 0 18px rgba(251, 191, 36, 0.35); }
+.cosmic-stat-value.up { color: #fca5a5; }
+.cosmic-stat-value.down { color: #93c5fd; }
+.cosmic-stat-unit { font-size: 14px; font-weight: 700; color: #9aa1ad; margin-left: 2px; }
+@media (prefers-reduced-motion: reduce) {
+  .cosmic-starfield, .cosmic-figure { animation: none; }
+}
+@media (max-width: 640px) {
+  .cosmic-figure { display: none; }
+  .cosmic-content { max-width: 100%; }
+}
+
+/* 전략별 적중/실패 집계는 보조 정보라 details/summary로 접어둔다 */
+.legacy-details { margin: 24px 0; }
+.legacy-details summary {
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--muted);
+  padding: 12px 16px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+.legacy-details[open] summary { border-radius: 10px 10px 0 0; margin-bottom: 0; }
+.legacy-details > *:not(summary) { margin-left: 4px; }
+
+/* Hero showcase video (2026-09-17, 사용자 요청 "웹페이지에 동영상 하나 들어가야지, 고급스럽게") */
+.hero-video-frame {
+  max-width: 300px;
+  margin: 8px auto 36px;
+  aspect-ratio: 9 / 16;
+  border-radius: 28px;
+  overflow: hidden;
+  background: var(--card-bg);
+  position: relative;
+  box-shadow:
+    0 24px 60px -20px rgba(0, 0, 0, 0.45),
+    0 0 0 1px var(--border),
+    0 0 48px -12px color-mix(in srgb, var(--brand) 40%, transparent);
+}
+.hero-video { width: 100%; height: 100%; object-fit: cover; display: block; }
+
 /* Hero animated chart */
 .hero-chart-wrap {
   max-width: 780px;
@@ -290,6 +459,23 @@ p { margin: 0 0 12px; }
   .hero-chart .price-line, .hero-chart .price-dot { animation: none; opacity: 1; stroke-dashoffset: 0; }
   .hero-chart .price-area { animation: none; opacity: 0.14; }
   .hero-chart .price-dot-glow { animation: none; opacity: 0.2; }
+}
+
+/* Hero candlestick chart (나스닥100 실제 1일봉, 2026-09-14 신설 -- 사용자 요청
+   "1일봉으로 해줘"/"나스닥". 조회 실패 시엔 위 .price-line 장식용 SVG로 폴백한다. */
+.hero-candles .candle {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  transform: scaleY(0.25);
+  animation: candle-in 0.5s ease-out forwards;
+}
+.hero-candles .candle line { stroke-width: 1.6; }
+.hero-candles .candle-up line, .hero-candles .candle-up rect { stroke: var(--up); fill: var(--up); }
+.hero-candles .candle-down line, .hero-candles .candle-down rect { stroke: var(--down); fill: var(--down); }
+@keyframes candle-in { to { opacity: 1; transform: scaleY(1); } }
+@media (prefers-reduced-motion: reduce) {
+  .hero-candles .candle { animation: none; opacity: 1; transform: none; }
 }
 
 /* Cards / grid */
@@ -527,4 +713,8 @@ tbody tr:last-child td { border-bottom: none; }
   .kpi-strip { grid-template-columns: repeat(2, 1fr); }
   .kpi-value { font-size: 17px; }
   .ticker-item { font-size: 11.5px; }
+  .proof-strip { grid-template-columns: repeat(2, 1fr); row-gap: 20px; }
+  .proof-item { border-left: none; border-top: 1px solid var(--border); padding-top: 16px; }
+  .proof-item:nth-child(1), .proof-item:nth-child(2) { border-top: none; padding-top: 0; }
+  .proof-value { font-size: 21px; }
 }
