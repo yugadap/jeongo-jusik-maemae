@@ -4,8 +4,16 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>정오의 주식매매</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root {
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system, "Segoe UI", "Noto Sans KR", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
   --bg: #f4f5f7;
   --card-bg: #ffffff;
   --card-bg-2: #fafbfc;
@@ -20,7 +28,15 @@
   --brand-soft: #fef3c7;
   --success: #16a34a;
   --danger: #dc2626;
-  --shadow: 0 1px 2px rgba(15, 17, 21, 0.04), 0 8px 24px -12px rgba(15, 17, 21, 0.12);
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+
+  --shadow-sm: 0 1px 2px rgba(15, 17, 21, 0.05);
+  --shadow-md: 0 1px 2px rgba(15, 17, 21, 0.04), 0 8px 24px -12px rgba(15, 17, 21, 0.12);
+  --shadow-lg: 0 32px 64px -28px rgba(15, 17, 21, 0.24);
+  --shadow: var(--shadow-md);
   --grid-line: rgba(15, 17, 21, 0.06);
 }
 @media (prefers-color-scheme: dark) {
@@ -39,7 +55,10 @@
     --brand-soft: #2e2408;
     --success: #4ade80;
     --danger: #f87171;
-    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 32px -12px rgba(0, 0, 0, 0.55);
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
+    --shadow-md: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 32px -12px rgba(0, 0, 0, 0.55);
+    --shadow-lg: 0 40px 80px -30px rgba(0, 0, 0, 0.65);
+    --shadow: var(--shadow-md);
     --grid-line: rgba(255, 255, 255, 0.055);
   }
 }
@@ -48,12 +67,16 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
-  font-family: -apple-system, "Segoe UI", Pretendard, "Noto Sans KR", sans-serif;
+  font-family: var(--font-sans);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 a { color: inherit; }
-.num, .big, .kpi-value, td.up, td.down, td.flat, .ticker-item b {
+.num, .big, .kpi-value, td.up, td.down, td.flat, .ticker-item b,
+.proof-value, .pick-score-num, .pick-score-max, .countdown-num, .countdown-colon,
+.cosmic-stat-value, .cosmic-stat-unit {
+  font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum" 1;
 }
@@ -63,7 +86,9 @@ a { color: inherit; }
   position: sticky;
   top: 0;
   z-index: 10;
-  background: var(--card-bg);
+  background: color-mix(in srgb, var(--card-bg) 85%, transparent);
+  backdrop-filter: blur(14px) saturate(1.5);
+  -webkit-backdrop-filter: blur(14px) saturate(1.5);
   border-bottom: 1px solid var(--border);
 }
 .nav-wrap {
@@ -81,8 +106,8 @@ a { color: inherit; }
   text-decoration: none;
   color: var(--text);
   display: flex;
-  align-items: baseline;
-  gap: 6px;
+  align-items: center;
+  gap: 7px;
   /* 배포본(deploy/index.html)에서는 <a>가 아니라 <button data-route>로 바뀌므로
      브라우저 기본 버튼 테두리/배경을 지워 <a>였을 때와 똑같이 보이게 한다. */
   background: none;
@@ -92,6 +117,9 @@ a { color: inherit; }
   font-family: inherit;
 }
 .logo .noon { color: var(--brand); }
+/* 내비게이션 로고 옆 작은 해 엠블럼 (2026-09-18, 사용자 요청 "왼쪽 위 대표 이름에도 해
+   모양 넣어줘") -- 브랜드 카드/픽 카드와 같은 도안을 아주 작게 재사용한다. */
+.logo-emblem { width: 22px; height: 22px; flex-shrink: 0; }
 .nav-links {
   display: flex;
   gap: 22px;
@@ -162,14 +190,23 @@ a { color: inherit; }
   margin: 0 auto;
   padding: 32px 20px 60px;
 }
-h1 { font-size: 26px; margin: 0 0 8px; }
-h2 { font-size: 17px; margin: 36px 0 12px; color: var(--accent); border-bottom: 1px solid var(--border); padding-bottom: 8px; }
-h3 { font-size: 14px; margin: 0 0 10px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.02em; margin: 0 0 10px; text-wrap: balance; }
+h2 {
+  font-size: 12.5px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 44px 0 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+h3 { font-size: 15px; font-weight: 700; letter-spacing: -0.005em; margin: 0 0 10px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 p { margin: 0 0 12px; }
 .muted { color: var(--muted); }
 .small { font-size: 12px; font-weight: normal; }
 .big { font-size: 24px; font-weight: 700; margin: 4px 0; }
-.lede { font-size: 16px; color: var(--muted); max-width: 640px; }
+.lede { font-size: 16px; color: var(--muted); max-width: 640px; line-height: 1.6; }
 
 /* Hero */
 .hero {
@@ -206,22 +243,27 @@ p { margin: 0 0 12px; }
   70% { box-shadow: 0 0 0 7px transparent; }
   100% { box-shadow: 0 0 0 0 transparent; }
 }
-.hero h1 { font-size: 36px; letter-spacing: -0.01em; }
+.hero h1 { font-size: 40px; letter-spacing: -0.025em; line-height: 1.15; }
 .hero .lede { margin: 0 auto 28px; }
 .cta-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 40px; }
 .btn {
-  display: inline-block;
-  padding: 11px 22px;
-  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 24px;
+  border-radius: var(--radius-sm);
   text-decoration: none;
   font-weight: 700;
   font-size: 14px;
   border: 1px solid transparent;
   cursor: pointer;
   font-family: inherit;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
-.btn-primary { background: var(--accent); color: var(--bg); }
+.btn-primary { background: var(--accent); color: var(--bg); box-shadow: var(--shadow-sm); }
+.btn-primary:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
 .btn-secondary { background: var(--card-bg); color: var(--text); border-color: var(--border); }
+.btn-secondary:hover { border-color: var(--brand); color: var(--brand); transform: translateY(-1px); }
 
 /* KPI strip */
 .kpi-strip {
@@ -230,31 +272,32 @@ p { margin: 0 0 12px; }
   gap: 1px;
   background: var(--border);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   overflow: hidden;
   margin: 0 0 8px;
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow-md);
 }
 .kpi-item {
   background: var(--card-bg);
-  padding: 16px 14px;
+  padding: 18px 14px;
   text-align: center;
 }
-.kpi-label { font-size: 11.5px; color: var(--muted); font-weight: 600; margin-bottom: 6px; }
-.kpi-value { font-size: 20px; font-weight: 800; letter-spacing: -0.01em; }
+.kpi-label { font-size: 11px; color: var(--muted); font-weight: 700; letter-spacing: 0.02em; margin-bottom: 8px; }
+.kpi-value { font-size: 21px; font-weight: 800; letter-spacing: -0.01em; }
 .kpi-value.up { color: var(--up); }
 .kpi-value.down { color: var(--down); }
-.kpi-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.kpi-sub { font-size: 11px; color: var(--muted); margin-top: 3px; }
 
 /* Eyebrow label (섹션 제목 위 작은 라벨) */
 .eyebrow {
   display: inline-block;
-  font-size: 11.5px;
+  font-size: 11px;
   font-weight: 800;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   color: var(--brand);
   background: var(--brand-soft);
-  padding: 4px 12px;
+  padding: 5px 12px;
   border-radius: 999px;
 }
 
@@ -394,9 +437,11 @@ p { margin: 0 0 12px; }
   padding: 12px 16px;
   background: var(--card-bg);
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: var(--radius-md);
+  transition: border-color 0.15s ease, color 0.15s ease;
 }
-.legacy-details[open] summary { border-radius: 10px 10px 0 0; margin-bottom: 0; }
+.legacy-details summary:hover { border-color: var(--brand); color: var(--text); }
+.legacy-details[open] summary { border-radius: var(--radius-md) var(--radius-md) 0 0; margin-bottom: 0; }
 .legacy-details > *:not(summary) { margin-left: 4px; }
 
 /* Hero showcase video (2026-09-17, 사용자 요청 "웹페이지에 동영상 하나 들어가야지, 고급스럽게") */
@@ -490,28 +535,28 @@ p { margin: 0 0 12px; }
 .card {
   background: var(--card-bg);
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   padding: 16px 18px;
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow-md);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
-.card:hover { transform: translateY(-1px); }
+.card:hover { transform: translateY(-1px); box-shadow: var(--shadow-lg); }
 .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin: 24px 0; }
-.feature-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 20px; box-shadow: var(--shadow); }
-.feature-card .num { font-size: 12px; font-weight: 800; color: var(--brand); }
-.feature-card h3 { font-size: 15px; margin: 6px 0 6px; }
-.feature-card p { color: var(--muted); font-size: 13px; margin: 0; }
+.feature-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 22px; box-shadow: var(--shadow-md); }
+.feature-card .num { font-family: var(--font-mono); font-size: 12px; font-weight: 800; color: var(--brand); letter-spacing: 0.02em; }
+.feature-card h3 { font-size: 15.5px; margin: 8px 0 6px; letter-spacing: -0.01em; }
+.feature-card p { color: var(--muted); font-size: 13.5px; line-height: 1.55; margin: 0; }
 
 /* Tables */
-.table-wrap { overflow-x: auto; border-radius: 10px; box-shadow: var(--shadow); }
-table { width: 100%; border-collapse: collapse; background: var(--card-bg); border-radius: 10px; overflow: hidden; font-size: 13px; }
-th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--border); }
+.table-wrap { overflow-x: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md); border: 1px solid var(--border); }
+table { width: 100%; border-collapse: collapse; background: var(--card-bg); border-radius: var(--radius-md); overflow: hidden; font-size: 13px; }
+th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); }
 th {
   color: var(--muted);
   font-weight: 700;
-  font-size: 11px;
+  font-size: 10.5px;
   text-transform: uppercase;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.05em;
   background: var(--card-bg-2);
   position: sticky;
   top: 0;
@@ -546,8 +591,10 @@ tbody tr:last-child td { border-bottom: none; }
 .progress-zero { position: absolute; top: -2px; width: 2px; height: 10px; background: var(--text); opacity: 0.4; }
 .progress-labels { display: flex; justify-content: space-between; margin: 2px 0 0; }
 
-/* Flip cards ("오늘 12시 추천종목") */
+/* Flip cards ("오늘 12시 추천종목") — 2026-09-18 리디자인: 트레이딩 카드 느낌으로,
+   perspective를 줘서 회전이 실제 3D처럼 보이게 하고, 1위 카드는 브랜드색으로 강조한다. */
 .flip-instructions { margin: -6px 0 14px; }
+.flip-scene { perspective: 1400px; }
 .flip-scene .card-grid { align-items: stretch; }
 .card.flip-card {
   background: none;
@@ -559,10 +606,11 @@ tbody tr:last-child td { border-bottom: none; }
 .card.flip-card:hover { transform: none; }
 .flip-card-inner {
   position: relative;
-  height: 260px;
-  transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+  height: 300px;
+  transition: transform 0.7s cubic-bezier(0.4, 0.2, 0.2, 1), filter 0.3s ease;
   transform-style: preserve-3d;
 }
+.flip-card:not(.flipped):hover .flip-card-inner { transform: translateY(-6px); }
 .flip-card.flipped .flip-card-inner { transform: rotateY(180deg); }
 .flip-face {
   position: absolute;
@@ -570,20 +618,44 @@ tbody tr:last-child td { border-bottom: none; }
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: var(--radius-lg);
   background: var(--card-bg);
-  box-shadow: var(--shadow);
-  padding: 16px 18px;
+  box-shadow: var(--shadow-md);
+  padding: 18px 20px;
   overflow-y: auto;
 }
 .flip-front {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  justify-content: center;
-  gap: 4px;
+  gap: 10px;
+  background: linear-gradient(165deg, var(--card-bg-2) 0%, var(--card-bg) 65%);
+  box-shadow: 0 16px 32px -18px rgba(0, 0, 0, 0.45), var(--shadow);
 }
-.flip-front h3 { margin: 0; }
+.flip-card-top .flip-front {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 1px var(--brand), 0 20px 40px -16px color-mix(in srgb, var(--brand) 45%, transparent);
+}
+.flip-front h3 { margin: 0; font-size: 18px; }
+.pick-rank {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #e5e7eb;
+  color: #374151;
+}
+@media (prefers-color-scheme: dark) {
+  .pick-rank { background: #374151; color: #e5e7eb; }
+}
+.flip-card-top .pick-rank { background: var(--brand); color: var(--bg); }
+.pick-score { display: flex; align-items: baseline; gap: 4px; margin-top: auto; }
+.pick-score-num { font-size: 42px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; color: var(--text); }
+.flip-card-top .pick-score-num { color: var(--brand); }
+.pick-score-max { font-size: 13px; color: var(--muted); }
+.pick-score-bar { width: 100%; height: 5px; border-radius: 999px; background: var(--border); overflow: hidden; }
+.pick-score-bar-fill { height: 100%; border-radius: 999px; background: var(--brand); }
 .flip-back { transform: rotateY(180deg); }
 .flip-hint {
   margin: 10px 0 0;
@@ -592,10 +664,36 @@ tbody tr:last-child td { border-bottom: none; }
   width: 100%;
   opacity: 0.75;
 }
-.flip-card:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; border-radius: 10px; }
+.flip-card:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; border-radius: var(--radius-lg); }
 @media (prefers-reduced-motion: reduce) {
   .flip-card-inner { transition: none; }
+  .flip-card:not(.flipped):hover .flip-card-inner { transform: none; }
 }
+
+/* 브랜드/타이머 카드 ("오늘의 픽" 상단, 2026-09-18 신설). 처음엔 탭하면 뒤집히는 카드로
+   만들었는데, 사용자 피드백("이거는 오픈되어있어야지 시간은 계속 볼 수 있게")에 따라
+   뒤집기 없이 엠블럼+타이머를 항상 같이 보여주는 정적 카드로 바꿨다. */
+.brand-card-scene { margin: 4px 0 28px; }
+.brand-card {
+  max-width: 420px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.brand-emblem { width: 64px; height: 64px; flex-shrink: 0; }
+.brand-card-body { display: flex; flex-direction: column; gap: 8px; }
+.brand-card-title { font-size: 19px; font-weight: 800; }
+.brand-card-title .noon { color: var(--brand); }
+.countdown-timer { display: flex; align-items: baseline; gap: 6px; }
+.countdown-unit { display: flex; flex-direction: column; align-items: center; }
+.countdown-num { font-size: 32px; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--text); line-height: 1; }
+.countdown-label { font-size: 10px; color: var(--muted); margin-top: 2px; }
+.countdown-colon { font-size: 24px; font-weight: 800; color: var(--muted); }
+
+/* 종목 픽 카드 우상단에 찍는 작은 해 엠블럼(2026-09-18, 사용자 요청 "여기에도 해 모양
+   넣어줘") -- 브랜드 카드와 같은 도안을 축소해서 카드마다 재사용한다. */
+.pick-emblem { position: absolute; top: 16px; right: 16px; width: 30px; height: 30px; opacity: 0.95; }
 
 /* Steps (strategy page) */
 .step-list { counter-reset: step; list-style: none; margin: 24px 0; padding: 0; }
@@ -632,9 +730,10 @@ tbody tr:last-child td { border-bottom: none; }
   padding: 14px 16px;
   background: var(--card-bg);
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   font-size: 13px;
   color: var(--muted);
+  line-height: 1.6;
 }
 
 /* Data source strip */
@@ -677,6 +776,7 @@ tbody tr:last-child td { border-bottom: none; }
   .proof-item { border-left: none; border-top: 1px solid var(--border); padding-top: 16px; }
   .proof-item:nth-child(1), .proof-item:nth-child(2) { border-top: none; padding-top: 0; }
   .proof-value { font-size: 21px; }
+  .brand-card { flex-direction: column; text-align: center; }
 }
 
 </style>
@@ -693,12 +793,12 @@ tbody tr:last-child td { border-bottom: none; }
 <body>
 <header class="site-header">
   <div class="nav-wrap">
-    <button data-route="home" class="logo">정오의<span class="noon">주식매매</span></button>
+    <button data-route="home" class="logo"><svg class="logo-emblem" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><linearGradient id="logoRimGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f3ede0"/><stop offset="100%" stop-color="#8a8272"/></linearGradient><radialGradient id="logoVisorGrad" cx="34%" cy="30%" r="75%"><stop offset="0%" stop-color="#fef3c7"/><stop offset="45%" stop-color="var(--brand)"/><stop offset="100%" stop-color="#5b2e0a"/></radialGradient></defs><circle cx="100" cy="100" r="92" fill="none" stroke="url(#logoRimGrad)" stroke-width="10" opacity="0.9"/><circle cx="100" cy="100" r="92" fill="none" stroke="#000" stroke-width="10" opacity="0.25" stroke-dasharray="4 10"/><circle cx="100" cy="100" r="74" fill="url(#logoVisorGrad)"/><circle cx="100" cy="100" r="74" fill="none" stroke="#000" stroke-width="3" opacity="0.35"/><ellipse cx="76" cy="72" rx="20" ry="12" fill="#fff" opacity="0.3"/><circle cx="100" cy="100" r="3" fill="#fff" opacity="0.8"/></svg>정오의<span class="noon">주식매매</span></button>
     <ul class="nav-links">
       <li><button data-route="home" class="active">홈</button></li>
-      <li><button data-route="strategy" style="background:none;border:none;padding:0;color:var(--brand);font:inherit;cursor:pointer;text-decoration:underline">전략 소개</button></li>
       <li><button data-route="picks" style="background:none;border:none;padding:0;color:var(--brand);font:inherit;cursor:pointer;text-decoration:underline">오늘의 픽</button></li>
       <li><button data-route="track-record" style="background:none;border:none;padding:0;color:var(--brand);font:inherit;cursor:pointer;text-decoration:underline">어제의 고찰</button></li>
+      <li><button data-route="strategy" style="background:none;border:none;padding:0;color:var(--brand);font:inherit;cursor:pointer;text-decoration:underline">전략 소개</button></li>
       <li><button data-route="about" style="background:none;border:none;padding:0;color:var(--brand);font:inherit;cursor:pointer;text-decoration:underline">수익률 현황</button></li>
     </ul>
   </div>
@@ -707,14 +807,14 @@ tbody tr:last-child td { border-bottom: none; }
 <section id="route-home" class="route">
 <div class="ticker-tape">
   <!-- SYNC:TICKER_START -->
-<div class='ticker-track'><span class='ticker-item'><span class='ticker-label'>공포지수(VIX)</span> <b>15.7 · 중립</b></span><span class='ticker-item'><span class='ticker-label'>기술적 판단</span> <b>매수추천</b></span><span class='ticker-item'><span class='ticker-label'>넥스틴</span> <b class='flat'>+0.00%</b></span><span class='ticker-item'><span class='ticker-label'>마음AI</span> <b class='down'>-0.70%</b></span><span class='ticker-item'><span class='ticker-label'>대우건설</span> <b class='down'>-0.69%</b></span><span class='ticker-item'><span class='ticker-label'>이번 주 선정 섹터</span> <b>SMH · XLK</b></span><span class='ticker-item'><span class='ticker-label'>공포지수(VIX)</span> <b>15.7 · 중립</b></span><span class='ticker-item'><span class='ticker-label'>기술적 판단</span> <b>매수추천</b></span><span class='ticker-item'><span class='ticker-label'>넥스틴</span> <b class='flat'>+0.00%</b></span><span class='ticker-item'><span class='ticker-label'>마음AI</span> <b class='down'>-0.70%</b></span><span class='ticker-item'><span class='ticker-label'>대우건설</span> <b class='down'>-0.69%</b></span><span class='ticker-item'><span class='ticker-label'>이번 주 선정 섹터</span> <b>SMH · XLK</b></span></div>
+<div class='ticker-track'><span class='ticker-item'><span class='ticker-label'>공포지수(VIX)</span> <b>15.4 · 중립</b></span><span class='ticker-item'><span class='ticker-label'>기술적 판단</span> <b>매수추천</b></span><span class='ticker-item'><span class='ticker-label'>우리기술투자</span> <b class='flat'>+0.00%</b></span><span class='ticker-item'><span class='ticker-label'>한전기술</span> <b class='down'>-0.22%</b></span><span class='ticker-item'><span class='ticker-label'>나노신소재</span> <b class='down'>-0.08%</b></span><span class='ticker-item'><span class='ticker-label'>이번 주 선정 섹터</span> <b>SMH · XLK</b></span><span class='ticker-item'><span class='ticker-label'>공포지수(VIX)</span> <b>15.4 · 중립</b></span><span class='ticker-item'><span class='ticker-label'>기술적 판단</span> <b>매수추천</b></span><span class='ticker-item'><span class='ticker-label'>우리기술투자</span> <b class='flat'>+0.00%</b></span><span class='ticker-item'><span class='ticker-label'>한전기술</span> <b class='down'>-0.22%</b></span><span class='ticker-item'><span class='ticker-label'>나노신소재</span> <b class='down'>-0.08%</b></span><span class='ticker-item'><span class='ticker-label'>이번 주 선정 섹터</span> <b>SMH · XLK</b></span></div>
 <!-- SYNC:TICKER_END -->
 </div>
 
 <section class="hero">
   <div class="page" style="padding-top:0;padding-bottom:0">
     <span class="badge-live"><span class="live-dot"></span>한국 증시 개장일마다 정오 12:00 자동 갱신</span>
-    <h1>미국의 밤이 끝나면,<br>한국의 정오가 시작됩니다.</h1>
+    <h1>매일 정오 12시,<br>이유 있는 3종목.</h1>
     <p class="lede">
       미국 핵심 섹터 ETF의 상대모멘텀으로 이번 주 가장 강한 흐름을 가려내고,
       그 흐름과 맞닿은 한국 종목을 매일 정오 다시 채점합니다.
@@ -735,13 +835,13 @@ tbody tr:last-child td { border-bottom: none; }
 
   <div class="hero-chart-wrap">
     <!-- SYNC:HERO_CHART_START -->
-<svg class='hero-chart hero-candles' viewBox='0 0 700 220' xmlns='http://www.w3.org/2000/svg' role='img' aria-label='나스닥100(TIGER 미국나스닥100 ETF 대리지표) 최근 22거래일 1일봉'><line class='grid-line' x1='0' y1='40' x2='700' y2='40'></line><line class='grid-line' x1='0' y1='100' x2='700' y2='100'></line><line class='grid-line' x1='0' y1='160' x2='700' y2='160'></line><g class='candle candle-down' style='animation-delay:0.0s'><line x1='15.9' y1='14.0' x2='15.9' y2='60.9'></line><rect x='7.2' y='14.4' width='17.5' height='38.7'></rect></g><g class='candle candle-up' style='animation-delay:0.035s'><line x1='47.7' y1='38.5' x2='47.7' y2='63.1'></line><rect x='39.0' y='45.9' width='17.5' height='9.2'></rect></g><g class='candle candle-down' style='animation-delay:0.07s'><line x1='79.5' y1='80.3' x2='79.5' y2='102.0'></line><rect x='70.8' y='85.8' width='17.5' height='1.5'></rect></g><g class='candle candle-down' style='animation-delay:0.105s'><line x1='111.4' y1='78.6' x2='111.4' y2='122.3'></line><rect x='102.6' y='80.6' width='17.5' height='35.1'></rect></g><g class='candle candle-up' style='animation-delay:0.14s'><line x1='143.2' y1='97.1' x2='143.2' y2='134.6'></line><rect x='134.4' y='97.1' width='17.5' height='28.6'></rect></g><g class='candle candle-down' style='animation-delay:0.175s'><line x1='175.0' y1='92.9' x2='175.0' y2='119.0'></line><rect x='166.2' y='97.1' width='17.5' height='6.5'></rect></g><g class='candle candle-down' style='animation-delay:0.21s'><line x1='206.8' y1='60.3' x2='206.8' y2='95.9'></line><rect x='198.1' y='62.9' width='17.5' height='25.1'></rect></g><g class='candle candle-down' style='animation-delay:0.245s'><line x1='238.6' y1='66.4' x2='238.6' y2='90.1'></line><rect x='229.9' y='72.5' width='17.5' height='17.2'></rect></g><g class='candle candle-up' style='animation-delay:0.28s'><line x1='270.5' y1='95.5' x2='270.5' y2='115.8'></line><rect x='261.7' y='105.1' width='17.5' height='1.5'></rect></g><g class='candle candle-up' style='animation-delay:0.315s'><line x1='302.3' y1='94.8' x2='302.3' y2='116.2'></line><rect x='293.5' y='101.1' width='17.5' height='5.9'></rect></g><g class='candle candle-down' style='animation-delay:0.35s'><line x1='334.1' y1='130.4' x2='334.1' y2='158.6'></line><rect x='325.3' y='132.8' width='17.5' height='22.0'></rect></g><g class='candle candle-down' style='animation-delay:0.385s'><line x1='365.9' y1='147.9' x2='365.9' y2='166.8'></line><rect x='357.2' y='154.8' width='17.5' height='3.3'></rect></g><g class='candle candle-up' style='animation-delay:0.42s'><line x1='397.7' y1='120.7' x2='397.7' y2='134.2'></line><rect x='389.0' y='130.2' width='17.5' height='4.1'></rect></g><g class='candle candle-down' style='animation-delay:0.455s'><line x1='429.5' y1='138.0' x2='429.5' y2='171.4'></line><rect x='420.8' y='140.8' width='17.5' height='6.7'></rect></g><g class='candle candle-up' style='animation-delay:0.49s'><line x1='461.4' y1='133.9' x2='461.4' y2='159.9'></line><rect x='452.6' y='145.9' width='17.5' height='5.0'></rect></g><g class='candle candle-up' style='animation-delay:0.525s'><line x1='493.2' y1='149.5' x2='493.2' y2='170.4'></line><rect x='484.4' y='162.7' width='17.5' height='2.7'></rect></g><g class='candle candle-down' style='animation-delay:0.56s'><line x1='525.0' y1='160.4' x2='525.0' y2='181.9'></line><rect x='516.2' y='164.6' width='17.5' height='5.3'></rect></g><g class='candle candle-up' style='animation-delay:0.595s'><line x1='556.8' y1='174.1' x2='556.8' y2='198.4'></line><rect x='548.1' y='178.6' width='17.5' height='6.9'></rect></g><g class='candle candle-up' style='animation-delay:0.63s'><line x1='588.6' y1='188.8' x2='588.6' y2='206.0'></line><rect x='579.9' y='194.1' width='17.5' height='7.5'></rect></g><g class='candle candle-up' style='animation-delay:0.665s'><line x1='620.5' y1='162.2' x2='620.5' y2='186.3'></line><rect x='611.7' y='163.6' width='17.5' height='17.5'></rect></g><g class='candle candle-up' style='animation-delay:0.7s'><line x1='652.3' y1='144.9' x2='652.3' y2='164.7'></line><rect x='643.5' y='146.7' width='17.5' height='16.3'></rect></g><g class='candle candle-up' style='animation-delay:0.735s'><line x1='684.1' y1='107.3' x2='684.1' y2='128.1'></line><rect x='675.3' y='109.6' width='17.5' height='6.6'></rect></g></svg><p class='muted small' style='text-align:center;margin:6px 0 0'>나스닥100(TIGER 미국나스닥100 ETF 대리지표) 최근 22거래일 1일봉 · 20260819~20260917 구간 -3.2% (TIGER 미국나스닥100 ETF 실측, 나스닥100 대리지표)</p>
+<svg class='hero-chart hero-candles' viewBox='0 0 700 220' xmlns='http://www.w3.org/2000/svg' role='img' aria-label='나스닥100(TIGER 미국나스닥100 ETF 대리지표) 최근 22거래일 1일봉'><line class='grid-line' x1='0' y1='40' x2='700' y2='40'></line><line class='grid-line' x1='0' y1='100' x2='700' y2='100'></line><line class='grid-line' x1='0' y1='160' x2='700' y2='160'></line><g class='candle candle-up' style='animation-delay:0.0s'><line x1='15.9' y1='14.0' x2='15.9' y2='42.2'></line><rect x='7.2' y='22.5' width='17.5' height='10.6'></rect></g><g class='candle candle-down' style='animation-delay:0.035s'><line x1='47.7' y1='61.9' x2='47.7' y2='86.8'></line><rect x='39.0' y='68.2' width='17.5' height='1.5'></rect></g><g class='candle candle-down' style='animation-delay:0.07s'><line x1='79.5' y1='60.0' x2='79.5' y2='110.1'></line><rect x='70.8' y='62.2' width='17.5' height='40.3'></rect></g><g class='candle candle-up' style='animation-delay:0.105s'><line x1='111.4' y1='81.2' x2='111.4' y2='124.1'></line><rect x='102.6' y='81.2' width='17.5' height='32.8'></rect></g><g class='candle candle-down' style='animation-delay:0.14s'><line x1='143.2' y1='76.4' x2='143.2' y2='106.2'></line><rect x='134.4' y='81.2' width='17.5' height='7.4'></rect></g><g class='candle candle-down' style='animation-delay:0.175s'><line x1='175.0' y1='39.0' x2='175.0' y2='79.7'></line><rect x='166.2' y='41.9' width='17.5' height='28.8'></rect></g><g class='candle candle-down' style='animation-delay:0.21s'><line x1='206.8' y1='45.9' x2='206.8' y2='73.2'></line><rect x='198.1' y='52.9' width='17.5' height='19.7'></rect></g><g class='candle candle-up' style='animation-delay:0.245s'><line x1='238.6' y1='79.3' x2='238.6' y2='102.6'></line><rect x='229.9' y='90.3' width='17.5' height='1.5'></rect></g><g class='candle candle-up' style='animation-delay:0.28s'><line x1='270.5' y1='78.6' x2='270.5' y2='103.1'></line><rect x='261.7' y='85.7' width='17.5' height='6.8'></rect></g><g class='candle candle-down' style='animation-delay:0.315s'><line x1='302.3' y1='119.3' x2='302.3' y2='151.6'></line><rect x='293.5' y='122.1' width='17.5' height='25.2'></rect></g><g class='candle candle-down' style='animation-delay:0.35s'><line x1='334.1' y1='139.4' x2='334.1' y2='161.0'></line><rect x='325.3' y='147.2' width='17.5' height='3.8'></rect></g><g class='candle candle-up' style='animation-delay:0.385s'><line x1='365.9' y1='108.2' x2='365.9' y2='123.7'></line><rect x='357.2' y='119.1' width='17.5' height='4.6'></rect></g><g class='candle candle-down' style='animation-delay:0.42s'><line x1='397.7' y1='128.0' x2='397.7' y2='166.3'></line><rect x='389.0' y='131.3' width='17.5' height='7.7'></rect></g><g class='candle candle-up' style='animation-delay:0.455s'><line x1='429.5' y1='123.3' x2='429.5' y2='153.1'></line><rect x='420.8' y='137.1' width='17.5' height='5.8'></rect></g><g class='candle candle-up' style='animation-delay:0.49s'><line x1='461.4' y1='141.3' x2='461.4' y2='165.2'></line><rect x='452.6' y='156.4' width='17.5' height='3.1'></rect></g><g class='candle candle-down' style='animation-delay:0.525s'><line x1='493.2' y1='153.8' x2='493.2' y2='178.4'></line><rect x='484.4' y='158.6' width='17.5' height='6.0'></rect></g><g class='candle candle-up' style='animation-delay:0.56s'><line x1='525.0' y1='169.5' x2='525.0' y2='197.3'></line><rect x='516.2' y='174.6' width='17.5' height='7.9'></rect></g><g class='candle candle-up' style='animation-delay:0.595s'><line x1='556.8' y1='186.3' x2='556.8' y2='206.0'></line><rect x='548.1' y='192.3' width='17.5' height='8.6'></rect></g><g class='candle candle-up' style='animation-delay:0.63s'><line x1='588.6' y1='155.8' x2='588.6' y2='183.4'></line><rect x='579.9' y='157.4' width='17.5' height='20.1'></rect></g><g class='candle candle-up' style='animation-delay:0.665s'><line x1='620.5' y1='135.9' x2='620.5' y2='158.7'></line><rect x='611.7' y='138.0' width='17.5' height='18.7'></rect></g><g class='candle candle-up' style='animation-delay:0.7s'><line x1='652.3' y1='92.9' x2='652.3' y2='116.7'></line><rect x='643.5' y='95.5' width='17.5' height='7.6'></rect></g><g class='candle candle-up' style='animation-delay:0.735s'><line x1='684.1' y1='52.4' x2='684.1' y2='70.7'></line><rect x='675.3' y='53.2' width='17.5' height='14.2'></rect></g></svg><p class='muted small' style='text-align:center;margin:6px 0 0'>나스닥100(TIGER 미국나스닥100 ETF 대리지표) 최근 22거래일 1일봉 · 20260820~20260918 구간 -0.6% (TIGER 미국나스닥100 ETF 실측, 나스닥100 대리지표)</p>
 <!-- SYNC:HERO_CHART_END -->
   </div>
 </section>
 
 <!-- SYNC:PROOF_START -->
-<div class='proof-strip reveal'><div class='proof-item'><div class='proof-value'>16개</div><div class='proof-label'>매일 추적하는 미국 핵심 섹터</div></div><div class='proof-item'><div class='proof-value'>26건</div><div class='proof-label'>누적 예측·검증 기록</div></div><div class='proof-item'><div class='proof-value'>매일 12시</div><div class='proof-label'>자동 갱신 (한국 증시 개장일)</div></div><div class='proof-item'><div class='proof-value'>무료</div><div class='proof-label'>홈 화면 앱 설치 가능</div></div></div>
+<div class='proof-strip reveal'><div class='proof-item'><div class='proof-value'>16개</div><div class='proof-label'>매일 추적하는 미국 핵심 섹터</div></div><div class='proof-item'><div class='proof-value'>3건</div><div class='proof-label'>누적 예측·검증 기록</div></div><div class='proof-item'><div class='proof-value'>매일 12시</div><div class='proof-label'>자동 갱신 (한국 증시 개장일)</div></div><div class='proof-item'><div class='proof-value'>무료</div><div class='proof-label'>홈 화면 앱 설치 가능</div></div></div>
 <!-- SYNC:PROOF_END -->
 
 <main class="page" style="padding-top:28px">
@@ -755,12 +855,12 @@ tbody tr:last-child td { border-bottom: none; }
     </div>
     <div class="kpi-item">
       <div class="kpi-label">오늘 평균 등락</div>
-      <div class="kpi-value down">-0.46%</div>
+      <div class="kpi-value down">-0.10%</div>
       <div class="kpi-sub">보유 종목 평균</div>
     </div>
     <div class="kpi-item">
       <div class="kpi-label">공포지수(VIX)</div>
-      <div class="kpi-value">15.7</div>
+      <div class="kpi-value">15.4</div>
       <div class="kpi-sub">중립</div>
     </div>
     <div class="kpi-item">
@@ -873,36 +973,51 @@ tbody tr:last-child td { border-bottom: none; }
 <main class="page">
   <h1>오늘의 픽</h1>
   <!-- SYNC:GENERATED_AT_START -->
-<p class='muted small'>2026-09-17(목) 12시 기준</p>
+<p class='muted small'>2026-09-18(금) 12시 기준</p>
 <!-- SYNC:GENERATED_AT_END -->
 
-  <h2>어제 12시 추천종목</h2>
-  <!-- SYNC:DOMESTIC_CARDS_START -->
-<div class='card-grid'><div class='card'><h3>🇰🇷 넥스틴 <span class='badge badge-etc'>홀딩</span></h3><p class='big flat'>+0.00% <span class='muted small'>당일</span></p><p class='muted small'>2026-09-17(목) 12시 기준 · 2026-09-10 최초 매수</p><div class='progress-track' style='margin-top:12px'><div class='progress-fill bar-fill-down' style='left:45.8%;width:4.2%'></div><div class='progress-zero' style='left:50.0%'></div><div class='progress-tick' style='left:41.7%'></div><div class='progress-tick' style='left:66.7%'></div><div class='progress-marker' style='left:45.8%;border-top-color:var(--down)'></div></div></div><div class='card'><h3>🇰🇷 마음AI <span class='badge badge-etc'>홀딩</span></h3><p class='big down'>-0.70% <span class='muted small'>당일</span></p><p class='muted small'>2026-09-17(목) 12시 기준 · 2026-09-11 최초 매수</p><div class='progress-track' style='margin-top:12px'><div class='progress-fill bar-fill-down' style='left:44.5%;width:5.5%'></div><div class='progress-zero' style='left:50.0%'></div><div class='progress-tick' style='left:41.7%'></div><div class='progress-tick' style='left:66.7%'></div><div class='progress-marker' style='left:44.5%;border-top-color:var(--down)'></div></div></div><div class='card'><h3>🇰🇷 대우건설 <span class='badge badge-etc'>홀딩</span></h3><p class='big down'>-0.69% <span class='muted small'>당일</span></p><p class='muted small'>2026-09-17(목) 12시 기준</p><div class='progress-track' style='margin-top:12px'><div class='progress-fill bar-fill-down' style='left:49.0%;width:1.0%'></div><div class='progress-zero' style='left:50.0%'></div><div class='progress-tick' style='left:41.7%'></div><div class='progress-tick' style='left:66.7%'></div><div class='progress-marker' style='left:49.0%;border-top-color:var(--down)'></div></div></div></div>
-<!-- SYNC:DOMESTIC_CARDS_END -->
-
-  <h2>오늘의 시장 판단</h2>
-  <!-- SYNC:MARKET_COMMENTARY_START -->
-<div class='card' style='margin-bottom:16px'><p style='margin:0 0 8px'><b>심리(공포지수)</b> <span class='badge badge-etc'>중립</span><br><span class='muted small'>공포지수(VIX) 15.70 — 탐욕구간도 강한 공포구간도 아닌 평이한 수준입니다. 심리적으로는 뚜렷한 신호가 없습니다.</span></p><p style='margin:0'><b>기술적 지표</b> <span class='badge badge-hit'>매수추천</span><br><span class='muted small'>코스피 대리지표가 20일선(단기 지지선)에 닿아 있어 지지를 기대할 수 있습니다, 나스닥 대리지표가 20일선(단기 지지선)에 닿아 있어 지지를 기대할 수 있습니다 — 기술적으로는 매수를 추천합니다. WTI 유가가 최근 며칠 새 +13.6% 급등했습니다($107.0) — 에너지 비용 부담 변화가 시장 전반 심리에 영향을 줬을 수 있습니다.</span></p></div>
-<!-- SYNC:MARKET_COMMENTARY_END -->
+  <div class="brand-card-scene">
+    <div class="card brand-card">
+      <svg class="brand-emblem" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="정오의 주식매매 엠블럼">
+        <defs>
+          <linearGradient id="pickBrandRimGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#f3ede0"/>
+            <stop offset="100%" stop-color="#8a8272"/>
+          </linearGradient>
+          <radialGradient id="pickBrandVisorGrad" cx="34%" cy="30%" r="75%">
+            <stop offset="0%" stop-color="#fef3c7"/>
+            <stop offset="45%" stop-color="var(--brand)"/>
+            <stop offset="100%" stop-color="#5b2e0a"/>
+          </radialGradient>
+        </defs>
+        <circle cx="100" cy="100" r="92" fill="none" stroke="url(#pickBrandRimGrad)" stroke-width="10" opacity="0.9"/>
+        <circle cx="100" cy="100" r="92" fill="none" stroke="#000" stroke-width="10" opacity="0.25" stroke-dasharray="4 10"/>
+        <circle cx="100" cy="100" r="74" fill="url(#pickBrandVisorGrad)"/>
+        <circle cx="100" cy="100" r="74" fill="none" stroke="#000" stroke-width="3" opacity="0.35"/>
+        <ellipse cx="76" cy="72" rx="20" ry="12" fill="#fff" opacity="0.3"/>
+        <circle cx="100" cy="100" r="3" fill="#fff" opacity="0.8"/>
+      </svg>
+      <div class="brand-card-body">
+        <div class="brand-card-title">정오의<span class="noon">주식매매</span></div>
+        <div class="countdown-timer" id="next-update-timer" aria-live="polite">
+          <div class="countdown-unit"><span class="countdown-num" data-unit="h">00</span><span class="countdown-label">시간</span></div>
+          <span class="countdown-colon">:</span>
+          <div class="countdown-unit"><span class="countdown-num" data-unit="m">00</span><span class="countdown-label">분</span></div>
+          <span class="countdown-colon">:</span>
+          <div class="countdown-unit"><span class="countdown-num" data-unit="s">00</span><span class="countdown-label">초</span></div>
+        </div>
+        <p class="muted small">다음 갱신까지 · 한국 증시 개장일 정오 12:00 기준</p>
+      </div>
+    </div>
+  </div>
 
   <h2>오늘 12시 추천종목</h2>
   <p class="muted small flip-instructions">카드를 클릭(모바일은 탭)하면 뒤집혀서 선정 이유가 보입니다.</p>
   <div class="flip-scene" id="pick-flip-scene">
   <!-- SYNC:PICK_CARDS_START -->
-<p class='muted small'>이번 기반: <b>SMH</b>(반도체) — AI 반도체·메모리 수요 확대, <b>XLK</b>(기술(S&P 기준)) — 글로벌 대형 IT/플랫폼 강세</p><div class='card-grid'><div class='card'><h3>넥스틴 <span class='muted small'>348210</span></h3><p class='muted small'>58.5/100점 · 추천 1위</p><p class='small' style='margin:8px 0 4px'><b>선정 이유</b></p><ul class='muted small reason-list'><li>연결 고리: 미국 SMH(반도체) → 반도체 웨이퍼 결함 검사 장비 → 넥스틴 → PBR 3.4(고평가) → 거래량 평소 대비 0.4배</li><li>핵심 근거: 테마/모멘텀(확신도 하) · 오늘 +1.95%</li><li>종합점수 58.5/100점</li></ul></div><div class='card'><h3>마음AI <span class='muted small'>377480</span></h3><p class='muted small'>57.0/100점 · 추천 2위</p><p class='small' style='margin:8px 0 4px'><b>선정 이유</b></p><ul class='muted small reason-list'><li>연결 고리: 국내 독립 이슈(계약체결) → 마음AI → PBR 3.2(고평가) → 거래량 평소 대비 0.1배</li><li>핵심 근거: 계약체결(확신도 하) · 오늘 -0.40%</li><li>주의: 재무 리스크 감점 45점</li><li>종합점수 57.0/100점</li></ul></div><div class='card'><h3>대우건설 <span class='muted small'>047040</span></h3><p class='muted small'>56.5/100점 · 추천 3위</p><p class='small' style='margin:8px 0 4px'><b>선정 이유</b></p><ul class='muted small reason-list'><li>연결 고리: 국내 독립 이슈(계약체결) → 대우건설 → PBR 2.04(고평가) → 거래량 평소 대비 0.2배</li><li>핵심 근거: 계약체결(확신도 하) · 오늘 +0.48%</li><li>주의: 재무 리스크 감점 30점</li><li>종합점수 56.5/100점</li></ul></div></div>
+<p class='muted small'>이번 기반: <b>SMH</b>(반도체) — AI 반도체·메모리 수요 확대, <b>XLK</b>(기술(S&P 기준)) — 글로벌 대형 IT/플랫폼 강세</p><div class='card-grid'><div class='card'><h3>나노신소재 <span class='muted small'>121600</span></h3><p class='muted small'>59.0/100점 · 추천 1위</p><p class='small' style='margin:8px 0 4px'><b>선정 이유</b></p><ul class='muted small reason-list'><li>연결 고리: 미국 SMH(반도체) → 반도체·이차전지 소재(탄소나노튜브 도전재) → 나노신소재 → PBR 2.31(고평가) → 거래량 평소 대비 0.4배(최근 고가 경신)</li><li>핵심 근거: 테마/모멘텀(확신도 하) · 오늘 +1.74%</li><li>종합점수 59.0/100점</li></ul></div><div class='card'><h3>우리기술투자 <span class='muted small'>041190</span></h3><p class='muted small'>57.0/100점 · 추천 2위</p><p class='small' style='margin:8px 0 4px'><b>선정 이유</b></p><ul class='muted small reason-list'><li>연결 고리: 미국 IBIT(암호화폐) → 가상자산 거래소(빗썸) 지분 보유 → 우리기술투자 → PBR 0.43(저평가) → 거래량 평소 대비 0.6배</li><li>핵심 근거: 테마/모멘텀(확신도 하) · 오늘 +0.00%</li><li>종합점수 57.0/100점</li></ul></div><div class='card'><h3>한전기술 <span class='muted small'>052690</span></h3><p class='muted small'>53.0/100점 · 추천 3위</p><p class='small' style='margin:8px 0 4px'><b>선정 이유</b></p><ul class='muted small reason-list'><li>연결 고리: 미국 XLU(유틸리티) → 원전·발전 설계 엔지니어링 → 한전기술 → PBR 6.93(고평가) → 거래량 평소 대비 1.4배</li><li>핵심 근거: 테마/모멘텀(확신도 하) · 오늘 +1.09%</li><li>종합점수 53.0/100점</li></ul></div></div>
 <!-- SYNC:PICK_CARDS_END -->
   </div>
-
-  <h2>오늘 모니터링 종목</h2>
-  <!-- SYNC:MONITORING_START -->
-<p class='muted small'>2026-09-17 기준, 실제 12:00 결과와 다를 수 있음 · 자사주 취득 등 실제 공시 근거가 있는 종목을 위쪽에 먼저 보여줍니다. (참고: 기관/외국인 순매수 동향은 아직 연동된 데이터가 없어 반영하지 못했습니다.)</p><div class='table-wrap'><table><thead><tr><th>순위</th><th>종목명</th><th>종목코드</th><th>왜 곧 오를 수 있나</th><th>합산점수</th><th>오늘등락</th><th>1주등락</th><th>상대강도(vs지수)</th><th>보유</th><th>매수적합</th></tr></thead><tbody><tr><td>2</td><td>마음AI</td><td>377480</td><td><span class='badge badge-partial'>계약체결 공시</span></td><td>34.0</td><td class='down'>-0.40%</td><td class='down'>-3.13%</td><td class='up'>+1.05%</td><td>보유중</td><td>❌ 재무 불안정 (재무리스크 45점 — 자본잠식/순손실/과다부채 등, 제외 기준 40점 이상)</td></tr><tr><td>3</td><td>대우건설</td><td>047040</td><td><span class='badge badge-partial'>계약체결 공시</span></td><td>33.7</td><td class='up'>+0.48%</td><td class='down'>-5.52%</td><td class='down'>-0.58%</td><td>보유중</td><td>✅</td></tr><tr><td>1</td><td>지니언스</td><td>263860</td><td><span class='muted small'>공시 없음(테마/모멘텀)</span> 네트워크 접근제어(NAC) 보안</td><td>36.4</td><td class='down'>-3.25%</td><td class='up'>+23.96%</td><td class='up'>+28.14%</td><td></td><td>❌ 최근 1주일간 이미 +23.96% 급등 (제외 기준 10% 이상)</td></tr><tr><td>4</td><td>파수</td><td>150900</td><td><span class='muted small'>공시 없음(테마/모멘텀)</span> 데이터 보안·DRM</td><td>33.4</td><td class='down'>-3.05%</td><td class='up'>+17.81%</td><td class='up'>+21.99%</td><td></td><td>❌ 시가총액 0.05조원 (초소형주 제외 기준 0.05조원 미만); 최근 1주일간 이미 +17.81% 급등 (제외 기준 10% 이상)</td></tr><tr><td>5</td><td>한미약품</td><td>128940</td><td><span class='muted small'>공시 없음(테마/모멘텀)</span> 대사질환·항암 신약 파이프라인</td><td>33.1</td><td class='up'>+3.78%</td><td class='up'>+8.20%</td><td class='up'>+13.08%</td><td></td><td>✅</td></tr><tr><td>6</td><td>CJ ENM</td><td>035760</td><td><span class='muted small'>공시 없음(테마/모멘텀)</span> 방송·영화 콘텐츠 제작</td><td>32.4</td><td class='down'>-3.61%</td><td class='up'>+9.52%</td><td class='up'>+13.70%</td><td></td><td>✅</td></tr><tr><td>7</td><td>오스코텍</td><td>039200</td><td><span class='muted small'>공시 없음(테마/모멘텀)</span> 표적항암 신약(레이저티닙 등)</td><td>28.9</td><td class='up'>+5.09%</td><td class='up'>+1.83%</td><td class='up'>+6.01%</td><td></td><td>❌ 오늘 이미 +5.09% 급등 (제외 기준 5% 이상)</td></tr><tr><td>8</td><td>위지트</td><td>036090</td><td><span class='muted small'>공시 없음(테마/모멘텀)</span> 가상자산 테마 편입 이력</td><td>28.1</td><td class='up'>+7.23%</td><td class='up'>+6.32%</td><td class='up'>+10.50%</td><td></td><td>❌ 오늘 이미 +7.23% 급등 (제외 기준 5% 이상)</td></tr><tr><td>9</td><td>HD현대중공업</td><td>329180</td><td><span class='muted small'>공시 없음(테마/모멘텀)</span> 조선(LNG선·방산함정)</td><td>27.9</td><td class='up'>+6.58%</td><td class='up'>+3.53%</td><td class='up'>+8.41%</td><td></td><td>❌ 시가총액 49.3조원 (대형주 제외 기준 10조원 이상); 오늘 이미 +6.58% 급등 (제외 기준 5% 이상)</td></tr><tr><td>10</td><td>S-Oil</td><td>010950</td><td><span class='muted small'>공시 없음(테마/모멘텀)</span> 정유·석유화학</td><td>27.4</td><td class='up'>+5.14%</td><td class='down'>-2.19%</td><td class='up'>+2.69%</td><td></td><td>❌ 시가총액 17.1조원 (대형주 제외 기준 10조원 이상); 오늘 이미 +5.14% 급등 (제외 기준 5% 이상)</td></tr><tr><td>11</td><td>한화에어로스페이스</td><td>012450</td><td><span class='muted small'>공시 없음(테마/모멘텀)</span> 방위산업(자주포 등)</td><td>26.9</td><td class='up'>+3.79%</td><td class='up'>+2.62%</td><td class='up'>+7.50%</td><td></td><td>❌ 시가총액 56.5조원 (대형주 제외 기준 10조원 이상)</td></tr><tr><td>12</td><td>NAVER</td><td>035420</td><td><span class='muted small'>공시 없음(테마/모멘텀)</span> AI 검색·클라우드</td><td>26.8</td><td class='flat'>+0.00%</td><td class='down'>-3.12%</td><td class='up'>+1.72%</td><td></td><td>❌ 시가총액 30.6조원 (대형주 제외 기준 10조원 이상)</td></tr><tr><td>13</td><td>카카오</td><td>035720</td><td><span class='muted small'>공시 없음(테마/모멘텀)</span> AI 플랫폼·메신저 생태계</td><td>25.8</td><td class='up'>+0.60%</td><td class='down'>-3.44%</td><td class='up'>+1.40%</td><td></td><td>❌ 시가총액 14.9조원 (대형주 제외 기준 10조원 이상)</td></tr><tr><td>14</td><td>삼성에스디에스</td><td>018260</td><td><span class='muted small'>공시 없음(테마/모멘텀)</span> 클라우드·IT서비스</td><td>25.8</td><td class='up'>+0.23%</td><td class='down'>-3.96%</td><td class='up'>+0.88%</td><td></td><td>❌ 시가총액 16.9조원 (대형주 제외 기준 10조원 이상)</td></tr><tr><td>15</td><td>롯데케미칼</td><td>011170</td><td><span class='muted small'>공시 없음(테마/모멘텀)</span> 범용 석유화학</td><td>24.6</td><td class='down'>-3.28%</td><td class='down'>-5.63%</td><td class='down'>-0.75%</td><td></td><td>✅</td></tr><tr><td>16</td><td>삼성중공업</td><td>010140</td><td><span class='muted small'>공시 없음(테마/모멘텀)</span> 조선(LNG선·해양플랜트)</td><td>22.9</td><td class='up'>+6.68%</td><td class='up'>+0.94%</td><td class='up'>+5.82%</td><td></td><td>❌ 시가총액 19.0조원 (대형주 제외 기준 10조원 이상); 오늘 이미 +6.68% 급등 (제외 기준 5% 이상)</td></tr><tr><td>17</td><td>삼성전자</td><td>005930</td><td><span class='muted small'>공시 없음(테마/모멘텀)</span> 메모리반도체·스마트폰 등 IT 하드웨어 전반</td><td>20.6</td><td class='down'>-0.39%</td><td class='down'>-6.13%</td><td class='down'>-1.29%</td><td></td><td>❌ 시가총액 1476.2조원 (대형주 제외 기준 10조원 이상)</td></tr><tr><td>18</td><td>넥스틴</td><td>348210</td><td><span class='muted small'>공시 없음(테마/모멘텀)</span> 반도체 웨이퍼 결함 검사 장비</td><td>18.7</td><td class='up'>+1.95%</td><td class='down'>-9.00%</td><td class='down'>-4.82%</td><td>보유중</td><td>✅</td></tr></tbody></table></div>
-<!-- SYNC:MONITORING_END -->
-
-  <h2>참고: 미국 핵심 섹터 16개 현황</h2>
-  <!-- SYNC:US_SECTOR_START -->
-<div class='table-wrap'><table><thead><tr><th>순위</th><th>티커</th><th>섹터</th><th>이슈</th><th>상대모멘텀</th><th>뉴스감성</th><th>최종점수</th><th>선정</th></tr></thead><tbody><tr><td>1</td><td>SMH</td><td>반도체</td><td>AI 반도체·메모리 수요 확대</td><td class='up'>+4.03%p</td><td class='muted'>-</td><td class='up'>+4.03</td><td>✅</td></tr><tr><td>2</td><td>XLK</td><td>기술(S&P 기준)</td><td>글로벌 대형 IT/플랫폼 강세</td><td class='up'>+2.06%p</td><td class='up'>+0.17</td><td class='up'>+2.41</td><td>✅</td></tr><tr><td>3</td><td>KRE</td><td>지방은행</td><td>중소형/지방은행 자금조달 여건</td><td class='down'>-0.15%p</td><td class='up'>+0.19</td><td class='up'>+0.23</td><td></td></tr><tr><td>4</td><td>XLI</td><td>산업재</td><td>산업재·기계·조선 수주</td><td class='down'>-0.10%p</td><td class='up'>+0.16</td><td class='up'>+0.21</td><td></td></tr><tr><td>5</td><td>XLU</td><td>유틸리티</td><td>전력 인프라(AI 데이터센터向 전력수요)</td><td class='down'>-0.34%p</td><td class='up'>+0.22</td><td class='up'>+0.10</td><td></td></tr><tr><td>6</td><td>XLRE</td><td>부동산(리츠)</td><td>부동산·리츠 자금조달 여건</td><td class='down'>-0.73%p</td><td class='muted'>-</td><td class='down'>-0.73</td><td></td></tr><tr><td>7</td><td>XLP</td><td>필수소비재</td><td>필수소비재 방어주</td><td class='down'>-1.06%p</td><td class='muted'>-</td><td class='down'>-1.06</td><td></td></tr><tr><td>8</td><td>XLF</td><td>금융(대형은행)</td><td>금리 환경·대형은행 실적</td><td class='down'>-1.09%p</td><td class='muted'>-</td><td class='down'>-1.09</td><td></td></tr><tr><td>9</td><td>XLY</td><td>임의소비재</td><td>소비·자동차·유통 심리</td><td class='down'>-1.86%p</td><td class='up'>+0.17</td><td class='down'>-1.52</td><td></td></tr><tr><td>10</td><td>GLD</td><td>금(현물)</td><td>안전자산·귀금속 가격 강세</td><td class='down'>-1.64%p</td><td class='up'>+0.04</td><td class='down'>-1.56</td><td></td></tr><tr><td>11</td><td>XLB</td><td>소재/화학</td><td>화학·소재 업황</td><td class='down'>-2.02%p</td><td class='muted'>-</td><td class='down'>-2.02</td><td></td></tr><tr><td>12</td><td>XBI</td><td>바이오텍</td><td>바이오 임상·신약 모멘텀</td><td class='down'>-3.83%p</td><td class='muted'>-</td><td class='down'>-3.83</td><td></td></tr><tr><td>13</td><td>IBIT</td><td>암호화폐</td><td>가상자산 시장 심리</td><td class='down'>-4.42%p</td><td class='muted'>-</td><td class='down'>-4.42</td><td></td></tr><tr><td>-</td><td>XLC</td><td>커뮤니케이션서비스</td><td>미디어·콘텐츠·플랫폼</td><td class='muted'>-p</td><td class='up'>+0.17</td><td class='muted'>-</td><td></td></tr><tr><td>-</td><td>XLE</td><td>에너지(정유)</td><td>국제유가·정유마진</td><td class='muted'>-p</td><td class='up'>+0.18</td><td class='muted'>-</td><td></td></tr><tr><td>-</td><td>XLV</td><td>헬스케어 전반</td><td>헬스케어·제약 전반</td><td class='muted'>-p</td><td class='up'>+0.10</td><td class='muted'>-</td><td></td></tr></tbody></table></div>
-<!-- SYNC:US_SECTOR_END -->
 
   <div class="disclaimer">
     투자 조언이 아닌 리서치 참고 자료입니다. 위 데이터는 예측 Agent가 한국 증시 개장일마다 정오에
@@ -927,21 +1042,86 @@ tbody tr:last-child td { border-bottom: none; }
     // rindex 방어 로직 덕에 본문 잘림까지는 안 갔지만, 브라우저 파서 자체는 여전히 위험하니
     // 이 종류의 문자열은 앞으로도 절대 원문 그대로 쓰지 않는다). 결과적으로 페이지 전체 JS가
     // SyntaxError로 죽어서 네비게이션 버튼이 전부 안 눌리는 사고로 이어졌었다.
+    // 2026-09-18 리디자인(사용자 요청 "오늘의픽 3종목을 좀 멋있게 바꿔줘, 카드를 뒤집는
+    // 느낌으로"): 앞면을 단순 텍스트 나열 대신 순위 배지 + 큰 점수 숫자 + 점수 막대로
+    // 재구성한다. 원본 점수/순위 텍스트("58.5/100점 · 추천 1위")는 그대로 두고 정규식으로
+    // 숫자만 뽑아 쓴다 -- dashboard.py 렌더 결과 자체는 여전히 건드리지 않는다(위 원칙 유지).
+    //
+    // 2026-09-18 추가(사용자 요청 "이 해 모양이 밑에 종목 선정할 때 이렇게 하라는거였어,
+    // 여기에도 해 모양 넣어줘"): 브랜드 카드와 같은 해 엠블럼을 각 카드 오른쪽 위에 작게
+    // 찍는다. 한 문서 안에 카드 3장 + 브랜드 카드까지 SVG 그라데이션이 여러 개 섞이므로
+    // (배포본은 5개 페이지를 한 문서로 합치는 SPA라 더더욱), id가 겹치면 엉뚱한 카드의
+    // 그라데이션을 서로 가져다 쓰는 사고가 난다 -- 카드 인덱스를 id에 넣어 매번 유일하게 만든다.
+    function buildPickEmblemSvg(uid) {
+      return (
+        '<svg class="pick-emblem" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+        '<defs>' +
+        '<linearGradient id="rim' + uid + '" x1="0" y1="0" x2="1" y2="1">' +
+        '<stop offset="0%" stop-color="#f3ede0"/><stop offset="100%" stop-color="#8a8272"/>' +
+        '</linearGradient>' +
+        '<radialGradient id="visor' + uid + '" cx="34%" cy="30%" r="75%">' +
+        '<stop offset="0%" stop-color="#fef3c7"/><stop offset="45%" stop-color="var(--brand)"/><stop offset="100%" stop-color="#5b2e0a"/>' +
+        '</radialGradient>' +
+        '</defs>' +
+        '<circle cx="100" cy="100" r="92" fill="none" stroke="url(#rim' + uid + ')" stroke-width="10" opacity="0.9"/>' +
+        '<circle cx="100" cy="100" r="92" fill="none" stroke="#000" stroke-width="10" opacity="0.25" stroke-dasharray="4 10"/>' +
+        '<circle cx="100" cy="100" r="74" fill="url(#visor' + uid + ')"/>' +
+        '<circle cx="100" cy="100" r="74" fill="none" stroke="#000" stroke-width="3" opacity="0.35"/>' +
+        '<ellipse cx="76" cy="72" rx="20" ry="12" fill="#fff" opacity="0.3"/>' +
+        '<circle cx="100" cy="100" r="3" fill="#fff" opacity="0.8"/>' +
+        '</svg>'
+      );
+    }
+
     var scene = document.getElementById("pick-flip-scene");
     if (!scene) return;
     var cards = scene.querySelectorAll(".card-grid > .card");
-    cards.forEach(function (card) {
+    cards.forEach(function (card, index) {
       if (card.classList.contains("flip-card")) return;
       var h3 = card.querySelector("h3");
       var scoreLine = card.querySelector("p.muted.small");
+      var scoreMatch = scoreLine ? scoreLine.textContent.match(/^([\d.]+)\s*\/\s*100/) : null;
+      var score = scoreMatch ? parseFloat(scoreMatch[1]) : null;
+      var rank = index + 1;
+
       var front = document.createElement("div");
       front.className = "flip-face flip-front";
+
+      var rankBadge = document.createElement("span");
+      rankBadge.className = "pick-rank";
+      rankBadge.textContent = rank === 1 ? "TOP PICK" : rank + "위";
+      front.appendChild(rankBadge);
+
       if (h3) front.appendChild(h3.cloneNode(true));
-      if (scoreLine) front.appendChild(scoreLine.cloneNode(true));
+
+      if (score !== null) {
+        var scoreWrap = document.createElement("div");
+        scoreWrap.className = "pick-score";
+        var scoreNum = document.createElement("span");
+        scoreNum.className = "pick-score-num";
+        scoreNum.textContent = score.toFixed(1);
+        var scoreMax = document.createElement("span");
+        scoreMax.className = "pick-score-max";
+        scoreMax.textContent = "/100";
+        scoreWrap.appendChild(scoreNum);
+        scoreWrap.appendChild(scoreMax);
+        front.appendChild(scoreWrap);
+
+        var bar = document.createElement("div");
+        bar.className = "pick-score-bar";
+        var barFill = document.createElement("div");
+        barFill.className = "pick-score-bar-fill";
+        barFill.style.width = Math.min(100, Math.max(0, score)) + "%";
+        bar.appendChild(barFill);
+        front.appendChild(bar);
+      }
+
       var hint = document.createElement("p");
       hint.className = "muted small flip-hint";
       hint.textContent = "탭하면 선정 이유 보기 ↻";
       front.appendChild(hint);
+
+      front.insertAdjacentHTML("beforeend", buildPickEmblemSvg("pickEmblem" + index));
 
       var back = document.createElement("div");
       back.className = "flip-face flip-back";
@@ -953,6 +1133,7 @@ tbody tr:last-child td { border-bottom: none; }
       inner.appendChild(back);
 
       card.classList.add("flip-card");
+      if (rank === 1) card.classList.add("flip-card-top");
       card.setAttribute("tabindex", "0");
       card.setAttribute("role", "button");
       card.setAttribute("aria-label", (h3 ? h3.textContent.trim() : "종목") + " 선정 이유 보기");
@@ -970,6 +1151,128 @@ tbody tr:last-child td { border-bottom: none; }
     });
   })();
   </script>
+
+  <script>
+  (function () {
+    // 2026-09-18 신설(사용자 요청 "정오의 주식매매 브랜드 이미지 카드에 시간/분/초
+    // 타이머가 있으면 좋겠어"). 처음엔 탭하면 뒤집혀서 타이머가 보이는 카드로 만들었는데,
+    // 사용자 피드백("이거는 오픈되어있어야지 시간은 계속 볼 수 있게")에 따라 뒤집기 없이
+    // 엠블럼과 타이머를 항상 같이 보여주는 정적 카드로 바꿨다.
+    var timerEl = document.getElementById("next-update-timer");
+    if (!timerEl) return;
+    var hEl = timerEl.querySelector('[data-unit="h"]');
+    var mEl = timerEl.querySelector('[data-unit="m"]');
+    var sEl = timerEl.querySelector('[data-unit="s"]');
+
+    function pad(n) { return String(n).padStart(2, "0"); }
+
+    // 뷰어의 로컬 시간대와 무관하게 항상 한국시간(KST, UTC+9) 정오 기준으로 계산해야
+    // 해서, "UTC ms + 9시간"을 하나의 일관된 타임라인으로 취급하고 그 안에서만 날짜
+    // 연산을 한다(타임존 라이브러리 없이 흔히 쓰는 방식). 공휴일 캘린더는 없어서
+    // 주말만 건너뛴다 -- 실제 휴장일은 예외로 남는 근사치임을 아래 문구로 알린다.
+    function msUntilNextNoonKst() {
+      var now = new Date();
+      var kstMs = now.getTime() + now.getTimezoneOffset() * 60000 + 9 * 3600000;
+      var kst = new Date(kstMs);
+      var target = new Date(Date.UTC(kst.getUTCFullYear(), kst.getUTCMonth(), kst.getUTCDate(), 12, 0, 0, 0));
+      if (kstMs >= target.getTime()) {
+        target.setUTCDate(target.getUTCDate() + 1);
+      }
+      while (target.getUTCDay() === 0 || target.getUTCDay() === 6) {
+        target.setUTCDate(target.getUTCDate() + 1);
+      }
+      return target.getTime() - kstMs;
+    }
+
+    function tick() {
+      var remain = Math.max(0, msUntilNextNoonKst());
+      var totalSec = Math.floor(remain / 1000);
+      var h = Math.floor(totalSec / 3600);
+      var m = Math.floor((totalSec % 3600) / 60);
+      var s = totalSec % 60;
+      hEl.textContent = pad(h);
+      mEl.textContent = pad(m);
+      sEl.textContent = pad(s);
+    }
+
+    tick();
+    setInterval(tick, 1000);
+  })();
+  </script>
+</main>
+</section>
+
+<section id="route-track-record" class="route" hidden>
+<main class="page">
+  <h1>어제의 고찰</h1>
+  <p class="lede">적중이든 실패든, 놓친 것까지 숨기지 않고 그대로 기록합니다. 아래는 예측 Agent가 매일 정오 남기는 실제 결과입니다.</p>
+  <!-- SYNC:TR_GENERATED_AT_START -->
+<p class='muted small'>2026-09-18(금) 12시 기준</p>
+<!-- SYNC:TR_GENERATED_AT_END -->
+
+  <h2>보유 종목 고찰</h2>
+  <!-- SYNC:REFLECTION_START -->
+<ul class='small' style='margin:0;padding-left:18px;line-height:1.6'><li><b>우리기술투자</b>: 매수 이후 누적 +0.00%, 전일과 거의 같은 보합권입니다. 손절·익절 기준 사이에서 계속 지켜보는 중입니다</li><li><b>한전기술</b>: 매수 이후 누적 -0.36%, 전일 대비 -0.22% 밀리며 다소 부진합니다. 손절·익절 기준 사이에서 계속 지켜보는 중입니다</li><li><b>나노신소재</b>: 매수 이후 누적 -0.08%, 전일 대비 -0.08% 밀리며 다소 부진합니다. 손절·익절 기준 사이에서 계속 지켜보는 중입니다</li></ul>
+<!-- SYNC:REFLECTION_END -->
+
+  <h2>보유 종목 카드</h2>
+  <!-- SYNC:DOMESTIC_CARDS_START -->
+<div class='card-grid'><div class='card'><h3>🇰🇷 우리기술투자 <span class='badge badge-etc'>홀딩</span></h3><p class='big flat'>+0.00% <span class='muted small'>당일</span></p><p class='muted small'>2026-09-18(금) 12시 기준</p><div class='progress-track' style='margin-top:12px'><div class='progress-fill bar-fill-up' style='left:50.0%;width:0.0%'></div><div class='progress-zero' style='left:50.0%'></div><div class='progress-tick' style='left:41.7%'></div><div class='progress-tick' style='left:66.7%'></div><div class='progress-marker' style='left:50.0%;border-top-color:var(--flat)'></div></div></div><div class='card'><h3>🇰🇷 한전기술 <span class='badge badge-etc'>홀딩</span></h3><p class='big down'>-0.22% <span class='muted small'>당일</span></p><p class='muted small'>2026-09-18(금) 12시 기준</p><div class='progress-track' style='margin-top:12px'><div class='progress-fill bar-fill-down' style='left:49.4%;width:0.6%'></div><div class='progress-zero' style='left:50.0%'></div><div class='progress-tick' style='left:41.7%'></div><div class='progress-tick' style='left:66.7%'></div><div class='progress-marker' style='left:49.4%;border-top-color:var(--down)'></div></div></div><div class='card'><h3>🇰🇷 나노신소재 <span class='badge badge-etc'>홀딩</span></h3><p class='big down'>-0.08% <span class='muted small'>당일</span></p><p class='muted small'>2026-09-18(금) 12시 기준</p><div class='progress-track' style='margin-top:12px'><div class='progress-fill bar-fill-down' style='left:49.9%;width:0.1%'></div><div class='progress-zero' style='left:50.0%'></div><div class='progress-tick' style='left:41.7%'></div><div class='progress-tick' style='left:66.7%'></div><div class='progress-marker' style='left:49.9%;border-top-color:var(--down)'></div></div></div></div>
+<!-- SYNC:DOMESTIC_CARDS_END -->
+
+  <h2>오늘의 시장 판단</h2>
+  <!-- SYNC:MARKET_COMMENTARY_START -->
+<div class='card' style='margin-bottom:16px'><p style='margin:0 0 12px'><span class='badge badge-partial' style='font-size:13px;padding:5px 12px'>오늘은 매매를 고려해볼 날이에요</span></p><p style='margin:0 0 8px'><b>심리(공포지수)</b> <span class='badge badge-etc'>중립</span><br><span class='muted small'>공포지수(VIX) 15.44 — 탐욕구간도 강한 공포구간도 아닌 평이한 수준입니다. 심리적으로는 뚜렷한 신호가 없습니다.</span></p><p style='margin:0'><b>기술적 지표</b> <span class='badge badge-hit'>매수추천</span><br><span class='muted small'>코스피 대리지표가 20일선(단기 지지선)에 닿아 있어 지지를 기대할 수 있습니다, 코스피 대리지표가 60일선(중기 추세선)에 닿아 있어 지지를 기대할 수 있습니다, 코스피 대리지표가 120일선(장기 지지선)에 닿아 있어 지지를 기대할 수 있습니다 — 기술적으로는 매수를 추천합니다. WTI 유가가 최근 며칠 새 +13.6% 급등했습니다($107.0) — 에너지 비용 부담 변화가 시장 전반 심리에 영향을 줬을 수 있습니다.</span></p></div>
+<!-- SYNC:MARKET_COMMENTARY_END -->
+
+  <h2>오늘 20%+ 급등·거래대금 상위 10종목 중 놓친 게 있었나</h2>
+  <!-- SYNC:MISS_AUDIT_START -->
+<div class='table-wrap'><table><thead><tr><th>종목명</th><th>종목코드</th><th>오늘등락률</th><th>거래대금</th><th>왜 놓쳤나</th></tr></thead><tbody><tr><td>가온전선 <span class='badge badge-fail'>후보풀 밖</span></td><td>000500</td><td class='up'>+20.92%</td><td>5526.6억</td><td>공시 없음. 지금 다시 확인해보면 등락률 순위 12위로 모멘텀 스캔 범위(상위 50위) 안이지만, 실제 매수 스캔은 12:00 시점이라 그때는 순위가 달라(범위 밖) 못 잡혔을 가능성이 큼</td></tr><tr class='miss-forward'><td colspan='5'><span class='muted small'>향후반영: 장중 순위가 계속 바뀌는 종목이라 스캔 시점 자체를 늘리기보다는, 이런 사례가 반복되면 12:00 스캔을 하루 중 여러 번(예: 시가 직후 추가 스캔)으로 늘리는 걸 검토할 근거가 됩니다. 시가총액 9.4조원은 현재 후보 필터 기준(200억원~60.0조원) 안입니다.</span></td></tr><tr><td>성호전자 <span class='badge badge-fail'>후보풀 밖</span></td><td>043260</td><td class='up'>+21.06%</td><td>2799.7억</td><td>공시 없음. 지금 다시 확인해보면 등락률 순위 11위로 모멘텀 스캔 범위(상위 50위) 안이지만, 실제 매수 스캔은 12:00 시점이라 그때는 순위가 달라(범위 밖) 못 잡혔을 가능성이 큼</td></tr><tr class='miss-forward'><td colspan='5'><span class='muted small'>향후반영: 장중 순위가 계속 바뀌는 종목이라 스캔 시점 자체를 늘리기보다는, 이런 사례가 반복되면 12:00 스캔을 하루 중 여러 번(예: 시가 직후 추가 스캔)으로 늘리는 걸 검토할 근거가 됩니다. 시가총액 2.0조원은 현재 후보 필터 기준(200억원~60.0조원) 안입니다.</span></td></tr><tr><td>선도전기 <span class='badge badge-fail'>후보풀 밖</span></td><td>007610</td><td class='up'>+27.99%</td><td>274.7억</td><td>공시 없음. 지금 다시 확인해보면 등락률 순위 6위로 모멘텀 스캔 범위(상위 50위) 안이지만, 실제 매수 스캔은 12:00 시점이라 그때는 순위가 달라(범위 밖) 못 잡혔을 가능성이 큼</td></tr><tr class='miss-forward'><td colspan='5'><span class='muted small'>향후반영: 장중 순위가 계속 바뀌는 종목이라 스캔 시점 자체를 늘리기보다는, 이런 사례가 반복되면 12:00 스캔을 하루 중 여러 번(예: 시가 직후 추가 스캔)으로 늘리는 걸 검토할 근거가 됩니다. 시가총액 877억원은 현재 후보 필터 기준(200억원~60.0조원) 안입니다.</span></td></tr><tr><td>엔에프씨 <span class='badge badge-fail'>후보풀 밖</span></td><td>265740</td><td class='up'>+29.92%</td><td>239.3억</td><td>공시 없음. 지금 다시 확인해보면 등락률 순위 3위로 모멘텀 스캔 범위(상위 50위) 안이지만, 실제 매수 스캔은 12:00 시점이라 그때는 순위가 달라(범위 밖) 못 잡혔을 가능성이 큼</td></tr><tr class='miss-forward'><td colspan='5'><span class='muted small'>향후반영: 장중 순위가 계속 바뀌는 종목이라 스캔 시점 자체를 늘리기보다는, 이런 사례가 반복되면 12:00 스캔을 하루 중 여러 번(예: 시가 직후 추가 스캔)으로 늘리는 걸 검토할 근거가 됩니다. 시가총액 1474억원은 현재 후보 필터 기준(200억원~60.0조원) 안입니다.</span></td></tr><tr><td>이엔셀 <span class='badge badge-fail'>후보풀 밖</span></td><td>456070</td><td class='up'>+25.90%</td><td>116.5억</td><td>공시 없음. 지금 다시 확인해보면 등락률 순위 9위로 모멘텀 스캔 범위(상위 50위) 안이지만, 실제 매수 스캔은 12:00 시점이라 그때는 순위가 달라(범위 밖) 못 잡혔을 가능성이 큼</td></tr><tr class='miss-forward'><td colspan='5'><span class='muted small'>향후반영: 장중 순위가 계속 바뀌는 종목이라 스캔 시점 자체를 늘리기보다는, 이런 사례가 반복되면 12:00 스캔을 하루 중 여러 번(예: 시가 직후 추가 스캔)으로 늘리는 걸 검토할 근거가 됩니다. 시가총액 729억원은 현재 후보 필터 기준(200억원~60.0조원) 안입니다.</span></td></tr><tr><td>이노인스트루먼트 <span class='badge badge-fail'>후보풀 밖</span></td><td>215790</td><td class='up'>+20.57%</td><td>80.5억</td><td>공시 없음. 지금 다시 확인해보면 등락률 순위 13위로 모멘텀 스캔 범위(상위 50위) 안이지만, 실제 매수 스캔은 12:00 시점이라 그때는 순위가 달라(범위 밖) 못 잡혔을 가능성이 큼</td></tr><tr class='miss-forward'><td colspan='5'><span class='muted small'>향후반영: 장중 순위가 계속 바뀌는 종목이라 스캔 시점 자체를 늘리기보다는, 이런 사례가 반복되면 12:00 스캔을 하루 중 여러 번(예: 시가 직후 추가 스캔)으로 늘리는 걸 검토할 근거가 됩니다. 시가총액 342억원은 현재 후보 필터 기준(200억원~60.0조원) 안입니다.</span></td></tr><tr><td>동양 <span class='badge badge-fail'>후보풀 밖</span></td><td>001520</td><td class='up'>+29.97%</td><td>67.2억</td><td>공시 없음. 지금 다시 확인해보면 등락률 순위 1위로 모멘텀 스캔 범위(상위 50위) 안이지만, 실제 매수 스캔은 12:00 시점이라 그때는 순위가 달라(범위 밖) 못 잡혔을 가능성이 큼</td></tr><tr class='miss-forward'><td colspan='5'><span class='muted small'>향후반영: 장중 순위가 계속 바뀌는 종목이라 스캔 시점 자체를 늘리기보다는, 이런 사례가 반복되면 12:00 스캔을 하루 중 여러 번(예: 시가 직후 추가 스캔)으로 늘리는 걸 검토할 근거가 됩니다. 시가총액 1449억원은 현재 후보 필터 기준(200억원~60.0조원) 안입니다.</span></td></tr><tr><td>오션인더블유 <span class='badge badge-fail'>후보풀 밖</span></td><td>052300</td><td class='up'>+26.15%</td><td>35.0억</td><td>공시 없음. 지금 다시 확인해보면 등락률 순위 8위로 모멘텀 스캔 범위(상위 50위) 안이지만, 실제 매수 스캔은 12:00 시점이라 그때는 순위가 달라(범위 밖) 못 잡혔을 가능성이 큼</td></tr><tr class='miss-forward'><td colspan='5'><span class='muted small'>향후반영: 장중 순위가 계속 바뀌는 종목이라 스캔 시점 자체를 늘리기보다는, 이런 사례가 반복되면 12:00 스캔을 하루 중 여러 번(예: 시가 직후 추가 스캔)으로 늘리는 걸 검토할 근거가 됩니다. 시가총액 306억원은 현재 후보 필터 기준(200억원~60.0조원) 안입니다.</span></td></tr><tr><td>썸에이지 <span class='badge badge-fail'>후보풀 밖</span></td><td>208640</td><td class='up'>+23.92%</td><td>21.4억</td><td>공시 없음. 지금 다시 확인해보면 등락률 순위 10위로 모멘텀 스캔 범위(상위 50위) 안이지만, 실제 매수 스캔은 12:00 시점이라 그때는 순위가 달라(범위 밖) 못 잡혔을 가능성이 큼</td></tr><tr class='miss-forward'><td colspan='5'><span class='muted small'>향후반영: 장중 순위가 계속 바뀌는 종목이라 스캔 시점 자체를 늘리기보다는, 이런 사례가 반복되면 12:00 스캔을 하루 중 여러 번(예: 시가 직후 추가 스캔)으로 늘리는 걸 검토할 근거가 됩니다. 시가총액 124억원이 현재 후보 필터 기준(200억원~60.0조원) 밖이라, 스캔 범위에 들어왔어도 애초에 매수 후보가 될 수 없는 종목입니다.</span></td></tr><tr><td>DYP <span class='badge badge-fail'>후보풀 밖</span></td><td>092780</td><td class='up'>+29.95%</td><td>16.9억</td><td>공시 없음. 지금 다시 확인해보면 등락률 순위 2위로 모멘텀 스캔 범위(상위 50위) 안이지만, 실제 매수 스캔은 12:00 시점이라 그때는 순위가 달라(범위 밖) 못 잡혔을 가능성이 큼</td></tr><tr class='miss-forward'><td colspan='5'><span class='muted small'>향후반영: 장중 순위가 계속 바뀌는 종목이라 스캔 시점 자체를 늘리기보다는, 이런 사례가 반복되면 12:00 스캔을 하루 중 여러 번(예: 시가 직후 추가 스캔)으로 늘리는 걸 검토할 근거가 됩니다. 시가총액 540억원은 현재 후보 필터 기준(200억원~60.0조원) 안입니다.</span></td></tr></tbody></table></div>
+<!-- SYNC:MISS_AUDIT_END -->
+
+  <h2>오늘 모니터링 종목</h2>
+  <!-- SYNC:MONITORING_START -->
+<p class='muted small'>2026-09-18 기준, 실제 12:00 결과와 다를 수 있음 · 자사주 취득 등 실제 공시 근거가 있는 종목을 위쪽에 먼저 보여줍니다. 시가총액이 후보 풀 범위 밖인 종목은 애초에 매수 대상이 될 수 없어 목록에서 뺐습니다. (참고: 기관/외국인 순매수 동향은 아직 연동된 데이터가 없어 반영하지 못했습니다.)</p><div class='table-wrap'><table><thead><tr><th>순위</th><th>종목명</th><th>종목코드</th><th>왜 곧 오를 수 있나</th><th>합산점수</th><th>오늘등락</th><th>매수적합</th></tr></thead><tbody><tr><td>1</td><td>DB하이텍</td><td>000990</td><td><span class='muted small'>공시 없음(테마/모멘텀)</span> 파운드리(비메모리 위탁생산)</td><td>33.0</td><td class='up'>+3.05%</td><td>❌ 최근 1주일간 이미 +17.67% 급등 (제외 기준 10% 이상)</td></tr><tr><td>2</td><td>나노신소재</td><td>121600</td><td><span class='muted small'>공시 없음(테마/모멘텀)</span> 반도체·이차전지 소재(탄소나노튜브 도전재)</td><td>31.5</td><td class='up'>+1.74%</td><td>✅</td></tr><tr><td>3</td><td>리노공업</td><td>058470</td><td><span class='muted small'>공시 없음(테마/모멘텀)</span> 반도체 테스트 소켓·핀</td><td>29.5</td><td class='up'>+3.77%</td><td>✅</td></tr><tr><td>4</td><td>유진테크</td><td>084370</td><td><span class='muted small'>공시 없음(테마/모멘텀)</span> 반도체 박막증착 장비(CVD)</td><td>27.7</td><td class='up'>+3.15%</td><td>✅</td></tr><tr><td>5</td><td>삼성에스디에스</td><td>018260</td><td><span class='muted small'>공시 없음(테마/모멘텀)</span> 클라우드·IT서비스</td><td>27.5</td><td class='up'>+2.08%</td><td>✅</td></tr><tr><td>6</td><td>카카오</td><td>035720</td><td><span class='muted small'>공시 없음(테마/모멘텀)</span> AI 플랫폼·메신저 생태계</td><td>26.7</td><td class='flat'>+0.00%</td><td>✅</td></tr><tr><td>8</td><td>NAVER</td><td>035420</td><td><span class='muted small'>공시 없음(테마/모멘텀)</span> AI 검색·클라우드</td><td>25.5</td><td class='up'>+1.51%</td><td>✅</td></tr><tr><td>9</td><td>한미반도체</td><td>042700</td><td><span class='muted small'>공시 없음(테마/모멘텀)</span> 반도체 후공정 패키징 장비(TC본더)</td><td>25.5</td><td class='up'>+3.77%</td><td>✅</td></tr><tr><td>10</td><td>고려아연</td><td>010130</td><td><span class='muted small'>공시 없음(테마/모멘텀)</span> 비철금속 제련(아연·은·금 부산물)</td><td>25.2</td><td class='up'>+3.03%</td><td>✅</td></tr><tr><td>11</td><td>우리기술투자</td><td>041190</td><td><span class='muted small'>공시 없음(테마/모멘텀)</span> 가상자산 거래소(빗썸) 지분 보유</td><td>23.5</td><td class='flat'>+0.00%</td><td>✅</td></tr><tr><td>13</td><td>한전기술</td><td>052690</td><td><span class='muted small'>공시 없음(테마/모멘텀)</span> 원전·발전 설계 엔지니어링</td><td>20.5</td><td class='up'>+1.09%</td><td>✅</td></tr><tr><td>14</td><td>HD현대일렉트릭</td><td>267260</td><td><span class='muted small'>공시 없음(테마/모멘텀)</span> 초고압 변압기(북미 데이터센터向)</td><td>19.2</td><td class='up'>+3.09%</td><td>✅</td></tr></tbody></table></div>
+<!-- SYNC:MONITORING_END -->
+
+  <h2>참고: 미국 핵심 섹터 현황</h2>
+  <!-- SYNC:US_SECTOR_START -->
+<p class='muted small'>상대모멘텀 상위 10개 + 실제 선정 섹터만 보여줍니다.</p><div class='table-wrap'><table><thead><tr><th>순위</th><th>티커</th><th>섹터</th><th>이슈</th><th>상대모멘텀</th><th>선정</th></tr></thead><tbody><tr><td>1</td><td>SMH</td><td>반도체</td><td>AI 반도체·메모리 수요 확대</td><td class='up'>+4.03%p</td><td>✅</td></tr><tr><td>2</td><td>XLK</td><td>기술(S&P 기준)</td><td>글로벌 대형 IT/플랫폼 강세</td><td class='up'>+2.06%p</td><td>✅</td></tr><tr><td>3</td><td>KRE</td><td>지방은행</td><td>중소형/지방은행 자금조달 여건</td><td class='down'>-0.15%p</td><td></td></tr><tr><td>4</td><td>XLI</td><td>산업재</td><td>산업재·기계·조선 수주</td><td class='down'>-0.10%p</td><td></td></tr><tr><td>5</td><td>XLU</td><td>유틸리티</td><td>전력 인프라(AI 데이터센터向 전력수요)</td><td class='down'>-0.34%p</td><td></td></tr><tr><td>6</td><td>XLRE</td><td>부동산(리츠)</td><td>부동산·리츠 자금조달 여건</td><td class='down'>-0.73%p</td><td></td></tr><tr><td>7</td><td>XLP</td><td>필수소비재</td><td>필수소비재 방어주</td><td class='down'>-1.06%p</td><td></td></tr><tr><td>8</td><td>XLF</td><td>금융(대형은행)</td><td>금리 환경·대형은행 실적</td><td class='down'>-1.09%p</td><td></td></tr><tr><td>9</td><td>XLY</td><td>임의소비재</td><td>소비·자동차·유통 심리</td><td class='down'>-1.86%p</td><td></td></tr><tr><td>10</td><td>GLD</td><td>금(현물)</td><td>안전자산·귀금속 가격 강세</td><td class='down'>-1.64%p</td><td></td></tr></tbody></table></div>
+<!-- SYNC:US_SECTOR_END -->
+
+  <h2>일별 현황 이력</h2>
+  <!-- SYNC:STATUS_HISTORY_START -->
+<table><thead><tr><th>날짜</th><th>국내(매수가 대비 누적)</th><th>누적평균</th><th>당일평균(성공기준)</th></tr></thead><tbody><tr><td>2026-09-18</td><td>우리기술투자 +0.00%, 한전기술 -0.36%, 나노신소재 -0.08%</td><td class='down'>-0.15%</td><td class='down'>-0.10% <span class='badge badge-fail'>실패</span></td></tr></tbody></table>
+<!-- SYNC:STATUS_HISTORY_END -->
+
+  <h2>이전 기록 (2026-09-04 ~ 09, 참고용)</h2>
+  <p class="muted small">2026-09-11부터 "적중/실패" 판정 대신 위와 같은 매일의 서술형 고찰 방식으로 전환했습니다. 아래는 전환 이전 방식으로 남아있던 마지막 기록입니다.</p>
+  <div class="card-grid">
+    <div class="card">
+      <h3>종가기준 전략 (2026-09-09 기준)</h3>
+      <p class="big">10.0% <span class="muted small">적중률</span></p>
+      <p class="muted small">적중 2 / 부분 2 / 실패 16 / 전체 20</p>
+    </div>
+  </div>
+  <div class="table-wrap" style="margin-top:12px">
+    <table>
+      <thead><tr><th>기준일</th><th>전략</th><th>종목</th><th>수익률</th><th>청산유형</th><th>판정</th></tr></thead>
+      <tbody>
+        <tr><td>2026-09-09</td><td>주간</td><td>비덴트</td><td class="flat">+0.00%</td><td>거래정지</td><td><span class="badge badge-etc">거래정지</span></td></tr>
+        <tr><td>2026-09-09</td><td>주간</td><td>한미반도체</td><td class="down">-0.55%</td><td>포트폴리오재조정</td><td><span class="badge badge-etc">포트폴리오재조정</span></td></tr>
+        <tr><td>2026-09-09</td><td>주간</td><td>SK하이닉스</td><td class="down">-1.17%</td><td>포트폴리오재조정</td><td><span class="badge badge-etc">포트폴리오재조정</span></td></tr>
+        <tr><td>2026-09-04</td><td>종가기준</td><td>우성</td><td class="up">+23.20%</td><td>-</td><td><span class="badge badge-hit">적중</span></td></tr>
+        <tr><td>2026-09-04</td><td>종가기준</td><td>두산퓨얼셀</td><td class="up">+15.17%</td><td>-</td><td><span class="badge badge-hit">적중</span></td></tr>
+        <tr><td>2026-09-04</td><td>종가기준</td><td>서남</td><td class="up">+8.73%</td><td>-</td><td><span class="badge badge-partial">부분 적중</span></td></tr>
+        <tr><td>2026-09-04</td><td>종가기준</td><td>한텍</td><td class="up">+5.83%</td><td>-</td><td><span class="badge badge-partial">부분 적중</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="disclaimer">
+    투자 조언이 아닌 리서치 참고 자료입니다. 표에 나온 종목·수익률·감사 내용은 실제 파이프라인이 남긴 기록 예시이며,
+    향후 특정 종목의 매수·매도를 시사하지 않습니다.
+  </div>
 </main>
 </section>
 
@@ -997,7 +1300,7 @@ tbody tr:last-child td { border-bottom: none; }
     </li>
   </ol>
 
-  <h2>② 국내 — 종가베팅 (매일 정오 12:00)</h2>
+  <h2>② 국내 — 정오베팅 (매일 정오 12:00)</h2>
   <ol class="step-list">
     <li>
       <h3>매도 먼저 — 보유 종목 재평가</h3>
@@ -1051,7 +1354,7 @@ tbody tr:last-child td { border-bottom: none; }
     <table>
       <thead><tr><th>구분</th><th>적중</th><th>부분 적중</th><th>실패</th></tr></thead>
       <tbody>
-        <tr><td>국내 종가베팅</td><td class="up">+15% 이상</td><td>+7% ~ +15% 미만</td><td class="down">+7% 이하</td></tr>
+        <tr><td>국내 정오베팅</td><td class="up">+15% 이상</td><td>+7% ~ +15% 미만</td><td class="down">+7% 이하</td></tr>
         <tr><td>해외 섹터 로테이션</td><td class="up">+5% 이상</td><td>+2% ~ +5% 미만</td><td class="down">+2% 이하</td></tr>
       </tbody>
     </table>
@@ -1060,57 +1363,6 @@ tbody tr:last-child td { border-bottom: none; }
 
   <div class="disclaimer">
     투자 조언이 아닌 리서치 참고 자료입니다. 실제 매매 주문은 실행되지 않으며, 이 전략은 예측·분석·검증까지만 수행합니다.
-  </div>
-</main>
-</section>
-
-<section id="route-track-record" class="route" hidden>
-<main class="page">
-  <h1>어제의 고찰</h1>
-  <p class="lede">적중이든 실패든, 놓친 것까지 숨기지 않고 그대로 기록합니다. 아래는 예측 Agent가 매일 정오 남기는 실제 결과입니다.</p>
-
-  <h2>보유 종목 고찰</h2>
-  <!-- SYNC:REFLECTION_START -->
-<ul class='small' style='margin:0;padding-left:18px;line-height:1.6'><li><b>넥스틴</b>: 매수 이후 누적 -2.50%, 전일과 거의 같은 보합권입니다. 손절·익절 기준 사이에서 계속 지켜보는 중입니다</li><li><b>마음AI</b>: 매수 이후 누적 -3.31%, 전일 대비 -0.70% 밀리며 다소 부진합니다. 손절 기준에 근접해 주의가 필요합니다</li><li><b>대우건설</b>: 매수 이후 누적 -0.61%, 전일 대비 -0.69% 밀리며 다소 부진합니다. 손절·익절 기준 사이에서 계속 지켜보는 중입니다</li></ul>
-<!-- SYNC:REFLECTION_END -->
-
-  <h2>오늘 20%+ 급등·거래대금 상위 10종목 중 놓친 게 있었나</h2>
-  <!-- SYNC:MISS_AUDIT_START -->
-<div class='table-wrap'><table><thead><tr><th>종목명</th><th>종목코드</th><th>오늘등락률</th><th>거래대금</th><th>왜 놓쳤나</th></tr></thead><tbody><tr><td>한켐 <span class='badge badge-fail'>후보풀 밖</span></td><td>457370</td><td class='up'>+25.39%</td><td>1863.5억</td><td>공시 없음. 지금 다시 확인해보면 등락률 순위 9위로 모멘텀 스캔 범위(상위 50위) 안이지만, 실제 매수 스캔은 12:00 시점이라 그때는 순위가 달라(범위 밖) 못 잡혔을 가능성이 큼</td></tr><tr class='miss-forward'><td colspan='5'><span class='muted small'>향후반영: 장중 순위가 계속 바뀌는 종목이라 스캔 시점 자체를 늘리기보다는, 이런 사례가 반복되면 12:00 스캔을 하루 중 여러 번(예: 시가 직후 추가 스캔)으로 늘리는 걸 검토할 근거가 됩니다. 시가총액 984억원은 현재 후보 필터 기준(200억원~60.0조원) 안입니다.</span></td></tr><tr><td>한양디지텍 <span class='badge badge-fail'>후보풀 밖</span></td><td>078350</td><td class='up'>+27.18%</td><td>1291.1억</td><td>공시 없음. 지금 다시 확인해보면 등락률 순위 8위로 모멘텀 스캔 범위(상위 50위) 안이지만, 실제 매수 스캔은 12:00 시점이라 그때는 순위가 달라(범위 밖) 못 잡혔을 가능성이 큼</td></tr><tr class='miss-forward'><td colspan='5'><span class='muted small'>향후반영: 장중 순위가 계속 바뀌는 종목이라 스캔 시점 자체를 늘리기보다는, 이런 사례가 반복되면 12:00 스캔을 하루 중 여러 번(예: 시가 직후 추가 스캔)으로 늘리는 걸 검토할 근거가 됩니다. 시가총액 3453억원은 현재 후보 필터 기준(200억원~60.0조원) 안입니다.</span></td></tr><tr><td>비츠로테크 <span class='badge badge-fail'>후보풀 밖</span></td><td>042370</td><td class='up'>+30.00%</td><td>1021.3억</td><td>공시 없음. 지금 다시 확인해보면 등락률 순위 1위로 모멘텀 스캔 범위(상위 50위) 안이지만, 실제 매수 스캔은 12:00 시점이라 그때는 순위가 달라(범위 밖) 못 잡혔을 가능성이 큼</td></tr><tr class='miss-forward'><td colspan='5'><span class='muted small'>향후반영: 장중 순위가 계속 바뀌는 종목이라 스캔 시점 자체를 늘리기보다는, 이런 사례가 반복되면 12:00 스캔을 하루 중 여러 번(예: 시가 직후 추가 스캔)으로 늘리는 걸 검토할 근거가 됩니다. 시가총액 2997억원은 현재 후보 필터 기준(200억원~60.0조원) 안입니다.</span></td></tr><tr><td>센서뷰 <span class='badge badge-fail'>후보풀 밖</span></td><td>321370</td><td class='up'>+21.76%</td><td>580.5억</td><td>공시 없음. 지금 다시 확인해보면 등락률 순위 12위로 모멘텀 스캔 범위(상위 50위) 안이지만, 실제 매수 스캔은 12:00 시점이라 그때는 순위가 달라(범위 밖) 못 잡혔을 가능성이 큼</td></tr><tr class='miss-forward'><td colspan='5'><span class='muted small'>향후반영: 장중 순위가 계속 바뀌는 종목이라 스캔 시점 자체를 늘리기보다는, 이런 사례가 반복되면 12:00 스캔을 하루 중 여러 번(예: 시가 직후 추가 스캔)으로 늘리는 걸 검토할 근거가 됩니다. 시가총액 1201억원은 현재 후보 필터 기준(200억원~60.0조원) 안입니다.</span></td></tr><tr><td>와이제이링크 <span class='badge badge-fail'>후보풀 밖</span></td><td>209640</td><td class='up'>+22.01%</td><td>254.1억</td><td>공시 없음. 지금 다시 확인해보면 등락률 순위 11위로 모멘텀 스캔 범위(상위 50위) 안이지만, 실제 매수 스캔은 12:00 시점이라 그때는 순위가 달라(범위 밖) 못 잡혔을 가능성이 큼</td></tr><tr class='miss-forward'><td colspan='5'><span class='muted small'>향후반영: 장중 순위가 계속 바뀌는 종목이라 스캔 시점 자체를 늘리기보다는, 이런 사례가 반복되면 12:00 스캔을 하루 중 여러 번(예: 시가 직후 추가 스캔)으로 늘리는 걸 검토할 근거가 됩니다. 시가총액 1072억원은 현재 후보 필터 기준(200억원~60.0조원) 안입니다.</span></td></tr><tr><td>나라스페이스테크놀로지 <span class='badge badge-fail'>후보풀 밖</span></td><td>478340</td><td class='up'>+29.92%</td><td>192.2억</td><td>공시 없음. 지금 다시 확인해보면 등락률 순위 5위로 모멘텀 스캔 범위(상위 50위) 안이지만, 실제 매수 스캔은 12:00 시점이라 그때는 순위가 달라(범위 밖) 못 잡혔을 가능성이 큼</td></tr><tr class='miss-forward'><td colspan='5'><span class='muted small'>향후반영: 장중 순위가 계속 바뀌는 종목이라 스캔 시점 자체를 늘리기보다는, 이런 사례가 반복되면 12:00 스캔을 하루 중 여러 번(예: 시가 직후 추가 스캔)으로 늘리는 걸 검토할 근거가 됩니다. 시가총액 1602억원은 현재 후보 필터 기준(200억원~60.0조원) 안입니다.</span></td></tr><tr><td>쓰리빌리언 <span class='badge badge-fail'>후보풀 밖</span></td><td>394800</td><td class='up'>+21.06%</td><td>103.9억</td><td>공시 없음. 지금 다시 확인해보면 등락률 순위 13위로 모멘텀 스캔 범위(상위 50위) 안이지만, 실제 매수 스캔은 12:00 시점이라 그때는 순위가 달라(범위 밖) 못 잡혔을 가능성이 큼</td></tr><tr class='miss-forward'><td colspan='5'><span class='muted small'>향후반영: 장중 순위가 계속 바뀌는 종목이라 스캔 시점 자체를 늘리기보다는, 이런 사례가 반복되면 12:00 스캔을 하루 중 여러 번(예: 시가 직후 추가 스캔)으로 늘리는 걸 검토할 근거가 됩니다. 시가총액 1564억원은 현재 후보 필터 기준(200억원~60.0조원) 안입니다.</span></td></tr><tr><td>진양화학 <span class='badge badge-fail'>후보풀 밖</span></td><td>051630</td><td class='up'>+29.94%</td><td>79.5억</td><td>공시 없음. 지금 다시 확인해보면 등락률 순위 3위로 모멘텀 스캔 범위(상위 50위) 안이지만, 실제 매수 스캔은 12:00 시점이라 그때는 순위가 달라(범위 밖) 못 잡혔을 가능성이 큼</td></tr><tr class='miss-forward'><td colspan='5'><span class='muted small'>향후반영: 장중 순위가 계속 바뀌는 종목이라 스캔 시점 자체를 늘리기보다는, 이런 사례가 반복되면 12:00 스캔을 하루 중 여러 번(예: 시가 직후 추가 스캔)으로 늘리는 걸 검토할 근거가 됩니다. 시가총액 376억원은 현재 후보 필터 기준(200억원~60.0조원) 안입니다.</span></td></tr><tr><td>씨케이솔루션 <span class='badge badge-fail'>후보풀 밖</span></td><td>480370</td><td class='up'>+24.56%</td><td>52.3억</td><td>공시 없음. 지금 다시 확인해보면 등락률 순위 10위로 모멘텀 스캔 범위(상위 50위) 안이지만, 실제 매수 스캔은 12:00 시점이라 그때는 순위가 달라(범위 밖) 못 잡혔을 가능성이 큼</td></tr><tr class='miss-forward'><td colspan='5'><span class='muted small'>향후반영: 장중 순위가 계속 바뀌는 종목이라 스캔 시점 자체를 늘리기보다는, 이런 사례가 반복되면 12:00 스캔을 하루 중 여러 번(예: 시가 직후 추가 스캔)으로 늘리는 걸 검토할 근거가 됩니다. 시가총액 684억원은 현재 후보 필터 기준(200억원~60.0조원) 안입니다.</span></td></tr><tr><td>진영 <span class='badge badge-fail'>후보풀 밖</span></td><td>285800</td><td class='up'>+29.93%</td><td>46.0억</td><td>공시 없음. 지금 다시 확인해보면 등락률 순위 4위로 모멘텀 스캔 범위(상위 50위) 안이지만, 실제 매수 스캔은 12:00 시점이라 그때는 순위가 달라(범위 밖) 못 잡혔을 가능성이 큼</td></tr><tr class='miss-forward'><td colspan='5'><span class='muted small'>향후반영: 장중 순위가 계속 바뀌는 종목이라 스캔 시점 자체를 늘리기보다는, 이런 사례가 반복되면 12:00 스캔을 하루 중 여러 번(예: 시가 직후 추가 스캔)으로 늘리는 걸 검토할 근거가 됩니다. 시가총액 176억원이 현재 후보 필터 기준(200억원~60.0조원) 밖이라, 스캔 범위에 들어왔어도 애초에 매수 후보가 될 수 없는 종목입니다.</span></td></tr></tbody></table></div>
-<!-- SYNC:MISS_AUDIT_END -->
-
-  <h2>일별 현황 이력</h2>
-  <!-- SYNC:STATUS_HISTORY_START -->
-<table><thead><tr><th>날짜</th><th>국내(매수가 대비 누적)</th><th>누적평균</th><th>당일평균(성공기준)</th></tr></thead><tbody><tr><td>2026-09-17</td><td>넥스틴 -2.50%, 마음AI -3.31%, 대우건설 -0.61%</td><td class='down'>-2.14%</td><td class='down'>-0.46% <span class='badge badge-fail'>실패</span></td></tr><tr><td>2026-09-14</td><td>넥스틴 -4.52%, 우리기술투자 +0.18%, 마음AI -1.65%</td><td class='down'>-2.00%</td><td class='down'>-1.37% <span class='badge badge-fail'>실패</span></td></tr><tr><td>2026-09-11</td><td>넥스틴 -2.03%, 우리기술투자 +0.00%, 마음AI +0.11%</td><td class='down'>-0.64%</td><td>-</td></tr><tr><td>2026-09-10</td><td>우리기술투자 -4.57%, HDC +7.04%, 넥스틴 +0.29%</td><td class='up'>+0.92%</td><td>-</td></tr></tbody></table>
-<!-- SYNC:STATUS_HISTORY_END -->
-
-  <h2>이전 기록 (2026-09-04 ~ 09, 참고용)</h2>
-  <p class="muted small">2026-09-11부터 "적중/실패" 판정 대신 위와 같은 매일의 서술형 고찰 방식으로 전환했습니다. 아래는 전환 이전 방식으로 남아있던 마지막 기록입니다.</p>
-  <div class="card-grid">
-    <div class="card">
-      <h3>종가기준 전략 (2026-09-09 기준)</h3>
-      <p class="big">10.0% <span class="muted small">적중률</span></p>
-      <p class="muted small">적중 2 / 부분 2 / 실패 16 / 전체 20</p>
-    </div>
-  </div>
-  <div class="table-wrap" style="margin-top:12px">
-    <table>
-      <thead><tr><th>기준일</th><th>전략</th><th>종목</th><th>수익률</th><th>청산유형</th><th>판정</th></tr></thead>
-      <tbody>
-        <tr><td>2026-09-09</td><td>주간</td><td>비덴트</td><td class="flat">+0.00%</td><td>거래정지</td><td><span class="badge badge-etc">거래정지</span></td></tr>
-        <tr><td>2026-09-09</td><td>주간</td><td>한미반도체</td><td class="down">-0.55%</td><td>포트폴리오재조정</td><td><span class="badge badge-etc">포트폴리오재조정</span></td></tr>
-        <tr><td>2026-09-09</td><td>주간</td><td>SK하이닉스</td><td class="down">-1.17%</td><td>포트폴리오재조정</td><td><span class="badge badge-etc">포트폴리오재조정</span></td></tr>
-        <tr><td>2026-09-04</td><td>종가기준</td><td>우성</td><td class="up">+23.20%</td><td>-</td><td><span class="badge badge-hit">적중</span></td></tr>
-        <tr><td>2026-09-04</td><td>종가기준</td><td>두산퓨얼셀</td><td class="up">+15.17%</td><td>-</td><td><span class="badge badge-hit">적중</span></td></tr>
-        <tr><td>2026-09-04</td><td>종가기준</td><td>서남</td><td class="up">+8.73%</td><td>-</td><td><span class="badge badge-partial">부분 적중</span></td></tr>
-        <tr><td>2026-09-04</td><td>종가기준</td><td>한텍</td><td class="up">+5.83%</td><td>-</td><td><span class="badge badge-partial">부분 적중</span></td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <div class="disclaimer">
-    투자 조언이 아닌 리서치 참고 자료입니다. 표에 나온 종목·수익률·감사 내용은 실제 파이프라인이 남긴 기록 예시이며,
-    향후 특정 종목의 매수·매도를 시사하지 않습니다.
   </div>
 </main>
 </section>
@@ -1149,10 +1401,10 @@ tbody tr:last-child td { border-bottom: none; }
       <h2 class="cosmic-heading">보유 3종목, 하루 평균 등락</h2>
       <!-- SYNC:DAILY_SUCCESS_STAT_START -->
 <div class="cosmic-stat-row">
-      <div class="cosmic-stat"><div class="cosmic-stat-label">추적 일수</div><div class="cosmic-stat-value">2<span class="cosmic-stat-unit">일</span></div></div>
+      <div class="cosmic-stat"><div class="cosmic-stat-label">추적 일수</div><div class="cosmic-stat-value">1<span class="cosmic-stat-unit">일</span></div></div>
       <div class="cosmic-stat"><div class="cosmic-stat-label">성공한 날 (평균 +5% 이상)</div><div class="cosmic-stat-value">0<span class="cosmic-stat-unit">일</span></div></div>
       <div class="cosmic-stat"><div class="cosmic-stat-label">성공률</div><div class="cosmic-stat-value">0.0<span class="cosmic-stat-unit">%</span></div></div>
-      <div class="cosmic-stat"><div class="cosmic-stat-label">일별 평균의 평균</div><div class="cosmic-stat-value down">-0.92%</div></div>
+      <div class="cosmic-stat"><div class="cosmic-stat-label">일별 평균의 평균</div><div class="cosmic-stat-value down">-0.10%</div></div>
     </div>
 <!-- SYNC:DAILY_SUCCESS_STAT_END -->
     </div>
@@ -1160,7 +1412,7 @@ tbody tr:last-child td { border-bottom: none; }
 
   <h2>일별 기록</h2>
   <!-- SYNC:DAILY_SUCCESS_TABLE_START -->
-<div class='table-wrap'><table><thead><tr><th>날짜</th><th>보유 3종목 평균 당일등락</th><th>판정(기준 +5%)</th></tr></thead><tbody><tr><td>2026-09-17</td><td class='down'>-0.46%</td><td><span class='badge badge-fail'>실패</span></td></tr><tr><td>2026-09-14</td><td class='down'>-1.37%</td><td><span class='badge badge-fail'>실패</span></td></tr></tbody></table></div>
+<div class='table-wrap'><table><thead><tr><th>날짜</th><th>보유 3종목 평균 당일등락</th><th>판정(기준 +5%)</th></tr></thead><tbody><tr><td>2026-09-18</td><td class='down'>-0.10%</td><td><span class='badge badge-fail'>실패</span></td></tr></tbody></table></div>
 <!-- SYNC:DAILY_SUCCESS_TABLE_END -->
 
   <details class="legacy-details">
@@ -1169,7 +1421,7 @@ tbody tr:last-child td { border-bottom: none; }
     <span class="eyebrow" style="margin-top:16px">현재 운영 중인 전략</span>
     <h2 style="margin-top:8px">전략별 성과</h2>
     <!-- SYNC:RETURNS_ACTIVE_START -->
-<div class='table-wrap'><table><thead><tr><th>전략</th><th>전체</th><th>적중</th><th>부분적중</th><th>실패</th><th>적중+부분적중 비율</th></tr></thead><tbody><tr><td>국내 종가베팅</td><td>3건</td><td class='up'>1</td><td class='flat'>0</td><td class='down'>2</td><td>33.3%</td></tr><tr><td>미국 섹터 로테이션</td><td>3건</td><td class='up'>0</td><td class='flat'>0</td><td class='down'>3</td><td>0.0%</td></tr></tbody></table></div>
+<div class='table-wrap'><table><thead><tr><th>전략</th><th>전체</th><th>적중</th><th>부분적중</th><th>실패</th><th>적중+부분적중 비율</th></tr></thead><tbody><tr><td>미국 섹터 로테이션</td><td>3건</td><td class='up'>0</td><td class='flat'>0</td><td class='down'>3</td><td>0.0%</td></tr></tbody></table></div>
 <!-- SYNC:RETURNS_ACTIVE_END -->
 
     <h2>지난 전략 (2026-09-11 폐기, 참고용)</h2>
@@ -1178,7 +1430,7 @@ tbody tr:last-child td { border-bottom: none; }
       지금은 운영하지 않지만 과거 기록은 투명성을 위해 남겨둡니다.
     </p>
     <!-- SYNC:RETURNS_LEGACY_START -->
-<div class='table-wrap'><table><thead><tr><th>전략</th><th>전체</th><th>적중</th><th>부분적중</th><th>실패</th><th>적중+부분적중 비율</th></tr></thead><tbody><tr><td>종가기준(폐기)</td><td>20건</td><td class='up'>2</td><td class='flat'>2</td><td class='down'>16</td><td>20.0%</td></tr></tbody></table></div>
+<p class='muted small'>아직 청산 완료된 예측이 없습니다.</p>
 <!-- SYNC:RETURNS_LEGACY_END -->
   </details>
 
