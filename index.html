@@ -122,27 +122,40 @@ a { color: inherit; }
 .logo-emblem { width: 22px; height: 22px; flex-shrink: 0; }
 .nav-links {
   display: flex;
-  gap: 22px;
+  gap: 4px;
   list-style: none;
   margin: 0;
   padding: 0;
   font-size: 14px;
 }
 .nav-links a, .nav-links button {
+  position: relative;
   text-decoration: none;
   color: var(--muted);
-  font-weight: 600;
+  font-weight: 700;
   white-space: nowrap;
   /* .logo와 같은 이유: 배포본에서는 <button data-route>가 된다 */
   background: none;
   border: none;
-  padding: 0;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   font-family: inherit;
   font-size: inherit;
+  transition: color 0.15s ease, background 0.15s ease;
 }
-.nav-links a.active, .nav-links button.active,
-.nav-links a:hover, .nav-links button:hover { color: var(--text); }
+.nav-links a:hover, .nav-links button:hover { color: var(--text); background: var(--card-bg-2); }
+.nav-links a.active, .nav-links button.active { color: var(--text); }
+.nav-links a.active::after, .nav-links button.active::after {
+  content: "";
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 2px;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--brand);
+}
 
 /* Ticker tape */
 .ticker-tape {
@@ -584,6 +597,23 @@ tbody tr:last-child td { border-bottom: none; }
 .reason-list { margin: 6px 0 0; padding-left: 16px; }
 .reason-list li { margin-bottom: 2px; }
 
+/* "왜 주목"/"주의할 점" 갈래 -- 2026-09-18, 종목의 상승 근거/리스크를 대비시켜 보여준다.
+   사이트 전역에서 이미 상승=--up(빨강)/하락=--down(파랑)로 쓰는 관례를 그대로 재사용. */
+.reason-list-pro, .reason-list-con { list-style: none; margin: 6px 0 0; padding-left: 12px; }
+.reason-list-pro { border-left: 2px solid var(--up); }
+.reason-list-con { border-left: 2px solid var(--down); }
+.reason-list-pro li, .reason-list-con li { margin-bottom: 3px; }
+
+.score-breakdown {
+  list-style: none; margin: 6px 0 0; padding: 0;
+  display: grid; grid-template-columns: 1fr auto; gap: 4px 8px;
+}
+.score-breakdown li { display: contents; }
+.score-breakdown li span:last-child {
+  font-family: var(--font-mono); font-variant-numeric: tabular-nums;
+  text-align: right; color: var(--text); font-weight: 700;
+}
+
 .progress-track { position: relative; height: 6px; background: var(--border); border-radius: 999px; margin: 10px 0 2px; overflow: visible; }
 .progress-fill { position: absolute; top: 0; left: 0; height: 100%; border-radius: 999px; }
 .bar-fill-up { background: var(--up); }
@@ -807,7 +837,7 @@ tbody tr:last-child td { border-bottom: none; }
 <section id="route-home" class="route">
 <div class="ticker-tape">
   <!-- SYNC:TICKER_START -->
-<div class='ticker-track'><span class='ticker-item'><span class='ticker-label'>공포지수(VIX)</span> <b>15.4 · 중립</b></span><span class='ticker-item'><span class='ticker-label'>기술적 판단</span> <b>매수추천</b></span><span class='ticker-item'><span class='ticker-label'>우리기술투자</span> <b class='flat'>+0.00%</b></span><span class='ticker-item'><span class='ticker-label'>한전기술</span> <b class='down'>-0.22%</b></span><span class='ticker-item'><span class='ticker-label'>나노신소재</span> <b class='down'>-0.08%</b></span><span class='ticker-item'><span class='ticker-label'>이번 주 선정 섹터</span> <b>SMH · XLK</b></span><span class='ticker-item'><span class='ticker-label'>공포지수(VIX)</span> <b>15.4 · 중립</b></span><span class='ticker-item'><span class='ticker-label'>기술적 판단</span> <b>매수추천</b></span><span class='ticker-item'><span class='ticker-label'>우리기술투자</span> <b class='flat'>+0.00%</b></span><span class='ticker-item'><span class='ticker-label'>한전기술</span> <b class='down'>-0.22%</b></span><span class='ticker-item'><span class='ticker-label'>나노신소재</span> <b class='down'>-0.08%</b></span><span class='ticker-item'><span class='ticker-label'>이번 주 선정 섹터</span> <b>SMH · XLK</b></span></div>
+<div class='ticker-track'><span class='ticker-item'><span class='ticker-label'>공포지수(VIX)</span> <b>15.4 · 중립</b></span><span class='ticker-item'><span class='ticker-label'>기술적 판단</span> <b>매수추천</b></span><span class='ticker-item'><span class='ticker-label'>이번 주 선정 섹터</span> <b>XLK</b></span><span class='ticker-item'><span class='ticker-label'>공포지수(VIX)</span> <b>15.4 · 중립</b></span><span class='ticker-item'><span class='ticker-label'>기술적 판단</span> <b>매수추천</b></span><span class='ticker-item'><span class='ticker-label'>이번 주 선정 섹터</span> <b>XLK</b></span></div>
 <!-- SYNC:TICKER_END -->
 </div>
 
@@ -835,7 +865,7 @@ tbody tr:last-child td { border-bottom: none; }
 
   <div class="hero-chart-wrap">
     <!-- SYNC:HERO_CHART_START -->
-<svg class='hero-chart hero-candles' viewBox='0 0 700 220' xmlns='http://www.w3.org/2000/svg' role='img' aria-label='나스닥100(TIGER 미국나스닥100 ETF 대리지표) 최근 22거래일 1일봉'><line class='grid-line' x1='0' y1='40' x2='700' y2='40'></line><line class='grid-line' x1='0' y1='100' x2='700' y2='100'></line><line class='grid-line' x1='0' y1='160' x2='700' y2='160'></line><g class='candle candle-up' style='animation-delay:0.0s'><line x1='15.9' y1='14.0' x2='15.9' y2='42.2'></line><rect x='7.2' y='22.5' width='17.5' height='10.6'></rect></g><g class='candle candle-down' style='animation-delay:0.035s'><line x1='47.7' y1='61.9' x2='47.7' y2='86.8'></line><rect x='39.0' y='68.2' width='17.5' height='1.5'></rect></g><g class='candle candle-down' style='animation-delay:0.07s'><line x1='79.5' y1='60.0' x2='79.5' y2='110.1'></line><rect x='70.8' y='62.2' width='17.5' height='40.3'></rect></g><g class='candle candle-up' style='animation-delay:0.105s'><line x1='111.4' y1='81.2' x2='111.4' y2='124.1'></line><rect x='102.6' y='81.2' width='17.5' height='32.8'></rect></g><g class='candle candle-down' style='animation-delay:0.14s'><line x1='143.2' y1='76.4' x2='143.2' y2='106.2'></line><rect x='134.4' y='81.2' width='17.5' height='7.4'></rect></g><g class='candle candle-down' style='animation-delay:0.175s'><line x1='175.0' y1='39.0' x2='175.0' y2='79.7'></line><rect x='166.2' y='41.9' width='17.5' height='28.8'></rect></g><g class='candle candle-down' style='animation-delay:0.21s'><line x1='206.8' y1='45.9' x2='206.8' y2='73.2'></line><rect x='198.1' y='52.9' width='17.5' height='19.7'></rect></g><g class='candle candle-up' style='animation-delay:0.245s'><line x1='238.6' y1='79.3' x2='238.6' y2='102.6'></line><rect x='229.9' y='90.3' width='17.5' height='1.5'></rect></g><g class='candle candle-up' style='animation-delay:0.28s'><line x1='270.5' y1='78.6' x2='270.5' y2='103.1'></line><rect x='261.7' y='85.7' width='17.5' height='6.8'></rect></g><g class='candle candle-down' style='animation-delay:0.315s'><line x1='302.3' y1='119.3' x2='302.3' y2='151.6'></line><rect x='293.5' y='122.1' width='17.5' height='25.2'></rect></g><g class='candle candle-down' style='animation-delay:0.35s'><line x1='334.1' y1='139.4' x2='334.1' y2='161.0'></line><rect x='325.3' y='147.2' width='17.5' height='3.8'></rect></g><g class='candle candle-up' style='animation-delay:0.385s'><line x1='365.9' y1='108.2' x2='365.9' y2='123.7'></line><rect x='357.2' y='119.1' width='17.5' height='4.6'></rect></g><g class='candle candle-down' style='animation-delay:0.42s'><line x1='397.7' y1='128.0' x2='397.7' y2='166.3'></line><rect x='389.0' y='131.3' width='17.5' height='7.7'></rect></g><g class='candle candle-up' style='animation-delay:0.455s'><line x1='429.5' y1='123.3' x2='429.5' y2='153.1'></line><rect x='420.8' y='137.1' width='17.5' height='5.8'></rect></g><g class='candle candle-up' style='animation-delay:0.49s'><line x1='461.4' y1='141.3' x2='461.4' y2='165.2'></line><rect x='452.6' y='156.4' width='17.5' height='3.1'></rect></g><g class='candle candle-down' style='animation-delay:0.525s'><line x1='493.2' y1='153.8' x2='493.2' y2='178.4'></line><rect x='484.4' y='158.6' width='17.5' height='6.0'></rect></g><g class='candle candle-up' style='animation-delay:0.56s'><line x1='525.0' y1='169.5' x2='525.0' y2='197.3'></line><rect x='516.2' y='174.6' width='17.5' height='7.9'></rect></g><g class='candle candle-up' style='animation-delay:0.595s'><line x1='556.8' y1='186.3' x2='556.8' y2='206.0'></line><rect x='548.1' y='192.3' width='17.5' height='8.6'></rect></g><g class='candle candle-up' style='animation-delay:0.63s'><line x1='588.6' y1='155.8' x2='588.6' y2='183.4'></line><rect x='579.9' y='157.4' width='17.5' height='20.1'></rect></g><g class='candle candle-up' style='animation-delay:0.665s'><line x1='620.5' y1='135.9' x2='620.5' y2='158.7'></line><rect x='611.7' y='138.0' width='17.5' height='18.7'></rect></g><g class='candle candle-up' style='animation-delay:0.7s'><line x1='652.3' y1='92.9' x2='652.3' y2='116.7'></line><rect x='643.5' y='95.5' width='17.5' height='7.6'></rect></g><g class='candle candle-up' style='animation-delay:0.735s'><line x1='684.1' y1='52.4' x2='684.1' y2='70.7'></line><rect x='675.3' y='53.2' width='17.5' height='14.2'></rect></g></svg><p class='muted small' style='text-align:center;margin:6px 0 0'>나스닥100(TIGER 미국나스닥100 ETF 대리지표) 최근 22거래일 1일봉 · 20260820~20260918 구간 -0.6% (TIGER 미국나스닥100 ETF 실측, 나스닥100 대리지표)</p>
+<svg class='hero-chart hero-candles' viewBox='0 0 700 220' xmlns='http://www.w3.org/2000/svg' role='img' aria-label='나스닥100(TIGER 미국나스닥100 ETF 대리지표) 최근 22거래일 1일봉'><line class='grid-line' x1='0' y1='40' x2='700' y2='40'></line><line class='grid-line' x1='0' y1='100' x2='700' y2='100'></line><line class='grid-line' x1='0' y1='160' x2='700' y2='160'></line><g class='candle candle-up' style='animation-delay:0.0s'><line x1='15.9' y1='14.0' x2='15.9' y2='42.2'></line><rect x='7.2' y='22.5' width='17.5' height='10.6'></rect></g><g class='candle candle-down' style='animation-delay:0.035s'><line x1='47.7' y1='61.9' x2='47.7' y2='86.8'></line><rect x='39.0' y='68.2' width='17.5' height='1.5'></rect></g><g class='candle candle-down' style='animation-delay:0.07s'><line x1='79.5' y1='60.0' x2='79.5' y2='110.1'></line><rect x='70.8' y='62.2' width='17.5' height='40.3'></rect></g><g class='candle candle-up' style='animation-delay:0.105s'><line x1='111.4' y1='81.2' x2='111.4' y2='124.1'></line><rect x='102.6' y='81.2' width='17.5' height='32.8'></rect></g><g class='candle candle-down' style='animation-delay:0.14s'><line x1='143.2' y1='76.4' x2='143.2' y2='106.2'></line><rect x='134.4' y='81.2' width='17.5' height='7.4'></rect></g><g class='candle candle-down' style='animation-delay:0.175s'><line x1='175.0' y1='39.0' x2='175.0' y2='79.7'></line><rect x='166.2' y='41.9' width='17.5' height='28.8'></rect></g><g class='candle candle-down' style='animation-delay:0.21s'><line x1='206.8' y1='45.9' x2='206.8' y2='73.2'></line><rect x='198.1' y='52.9' width='17.5' height='19.7'></rect></g><g class='candle candle-up' style='animation-delay:0.245s'><line x1='238.6' y1='79.3' x2='238.6' y2='102.6'></line><rect x='229.9' y='90.3' width='17.5' height='1.5'></rect></g><g class='candle candle-up' style='animation-delay:0.28s'><line x1='270.5' y1='78.6' x2='270.5' y2='103.1'></line><rect x='261.7' y='85.7' width='17.5' height='6.8'></rect></g><g class='candle candle-down' style='animation-delay:0.315s'><line x1='302.3' y1='119.3' x2='302.3' y2='151.6'></line><rect x='293.5' y='122.1' width='17.5' height='25.2'></rect></g><g class='candle candle-down' style='animation-delay:0.35s'><line x1='334.1' y1='139.4' x2='334.1' y2='161.0'></line><rect x='325.3' y='147.2' width='17.5' height='3.8'></rect></g><g class='candle candle-up' style='animation-delay:0.385s'><line x1='365.9' y1='108.2' x2='365.9' y2='123.7'></line><rect x='357.2' y='119.1' width='17.5' height='4.6'></rect></g><g class='candle candle-down' style='animation-delay:0.42s'><line x1='397.7' y1='128.0' x2='397.7' y2='166.3'></line><rect x='389.0' y='131.3' width='17.5' height='7.7'></rect></g><g class='candle candle-up' style='animation-delay:0.455s'><line x1='429.5' y1='123.3' x2='429.5' y2='153.1'></line><rect x='420.8' y='137.1' width='17.5' height='5.8'></rect></g><g class='candle candle-up' style='animation-delay:0.49s'><line x1='461.4' y1='141.3' x2='461.4' y2='165.2'></line><rect x='452.6' y='156.4' width='17.5' height='3.1'></rect></g><g class='candle candle-down' style='animation-delay:0.525s'><line x1='493.2' y1='153.8' x2='493.2' y2='178.4'></line><rect x='484.4' y='158.6' width='17.5' height='6.0'></rect></g><g class='candle candle-up' style='animation-delay:0.56s'><line x1='525.0' y1='169.5' x2='525.0' y2='197.3'></line><rect x='516.2' y='174.6' width='17.5' height='7.9'></rect></g><g class='candle candle-up' style='animation-delay:0.595s'><line x1='556.8' y1='186.3' x2='556.8' y2='206.0'></line><rect x='548.1' y='192.3' width='17.5' height='8.6'></rect></g><g class='candle candle-up' style='animation-delay:0.63s'><line x1='588.6' y1='155.8' x2='588.6' y2='183.4'></line><rect x='579.9' y='157.4' width='17.5' height='20.1'></rect></g><g class='candle candle-up' style='animation-delay:0.665s'><line x1='620.5' y1='135.9' x2='620.5' y2='158.7'></line><rect x='611.7' y='138.0' width='17.5' height='18.7'></rect></g><g class='candle candle-up' style='animation-delay:0.7s'><line x1='652.3' y1='92.9' x2='652.3' y2='116.7'></line><rect x='643.5' y='95.5' width='17.5' height='7.6'></rect></g><g class='candle candle-up' style='animation-delay:0.735s'><line x1='684.1' y1='41.6' x2='684.1' y2='70.7'></line><rect x='675.3' y='44.9' width='17.5' height='22.5'></rect></g></svg><p class='muted small' style='text-align:center;margin:6px 0 0'>나스닥100(TIGER 미국나스닥100 ETF 대리지표) 최근 22거래일 1일봉 · 20260820~20260918 구간 -0.3% (TIGER 미국나스닥100 ETF 실측, 나스닥100 대리지표)</p>
 <!-- SYNC:HERO_CHART_END -->
   </div>
 </section>
@@ -850,12 +880,12 @@ tbody tr:last-child td { border-bottom: none; }
 <div class="kpi-strip reveal">
     <div class="kpi-item">
       <div class="kpi-label">보유 종목</div>
-      <div class="kpi-value">3개</div>
+      <div class="kpi-value">0개</div>
       <div class="kpi-sub">전부 홀딩·손절·익절 판단은 오늘의 픽 참고</div>
     </div>
     <div class="kpi-item">
       <div class="kpi-label">오늘 평균 등락</div>
-      <div class="kpi-value down">-0.10%</div>
+      <div class="kpi-value muted">-</div>
       <div class="kpi-sub">보유 종목 평균</div>
     </div>
     <div class="kpi-item">
@@ -865,8 +895,8 @@ tbody tr:last-child td { border-bottom: none; }
     </div>
     <div class="kpi-item">
       <div class="kpi-label">이번 주 선정 섹터</div>
-      <div class="kpi-value" style="font-size:16px">SMH · XLK</div>
-      <div class="kpi-sub">반도체 · 기술(S&P 기준)</div>
+      <div class="kpi-value" style="font-size:16px">XLK</div>
+      <div class="kpi-sub">기술(S&P 기준)</div>
     </div>
   </div>
 <!-- SYNC:HOME_KPI_END -->
@@ -1015,7 +1045,7 @@ tbody tr:last-child td { border-bottom: none; }
   <p class="muted small flip-instructions">카드를 클릭(모바일은 탭)하면 뒤집혀서 선정 이유가 보입니다.</p>
   <div class="flip-scene" id="pick-flip-scene">
   <!-- SYNC:PICK_CARDS_START -->
-<p class='muted small'>이번 기반: <b>SMH</b>(반도체) — AI 반도체·메모리 수요 확대, <b>XLK</b>(기술(S&P 기준)) — 글로벌 대형 IT/플랫폼 강세</p><div class='card-grid'><div class='card'><h3>나노신소재 <span class='muted small'>121600</span></h3><p class='muted small'>59.0/100점 · 추천 1위</p><p class='small' style='margin:8px 0 4px'><b>선정 이유</b></p><ul class='muted small reason-list'><li>연결 고리: 미국 SMH(반도체) → 반도체·이차전지 소재(탄소나노튜브 도전재) → 나노신소재 → PBR 2.31(고평가) → 거래량 평소 대비 0.4배(최근 고가 경신)</li><li>핵심 근거: 테마/모멘텀(확신도 하) · 오늘 +1.74%</li><li>종합점수 59.0/100점</li></ul></div><div class='card'><h3>우리기술투자 <span class='muted small'>041190</span></h3><p class='muted small'>57.0/100점 · 추천 2위</p><p class='small' style='margin:8px 0 4px'><b>선정 이유</b></p><ul class='muted small reason-list'><li>연결 고리: 미국 IBIT(암호화폐) → 가상자산 거래소(빗썸) 지분 보유 → 우리기술투자 → PBR 0.43(저평가) → 거래량 평소 대비 0.6배</li><li>핵심 근거: 테마/모멘텀(확신도 하) · 오늘 +0.00%</li><li>종합점수 57.0/100점</li></ul></div><div class='card'><h3>한전기술 <span class='muted small'>052690</span></h3><p class='muted small'>53.0/100점 · 추천 3위</p><p class='small' style='margin:8px 0 4px'><b>선정 이유</b></p><ul class='muted small reason-list'><li>연결 고리: 미국 XLU(유틸리티) → 원전·발전 설계 엔지니어링 → 한전기술 → PBR 6.93(고평가) → 거래량 평소 대비 1.4배</li><li>핵심 근거: 테마/모멘텀(확신도 하) · 오늘 +1.09%</li><li>종합점수 53.0/100점</li></ul></div></div>
+<p class='muted small'>이번 기반: <b>SMH</b>(반도체) — AI 반도체·메모리 수요 확대, <b>XLK</b>(기술(S&P 기준)) — 글로벌 대형 IT/플랫폼 강세</p><div class='card-grid'><div class='card'><h3>나노신소재 <span class='muted small'>121600</span></h3><p class='muted small'>59.0/100점 · 순위 1위</p><p class='small' style='margin:8px 0 4px'>연결 고리: 미국 SMH(반도체) → 반도체·이차전지 소재(탄소나노튜브 도전재) → 나노신소재 → PBR 2.31(고평가) → 거래량 평소 대비 0.4배(최근 고가 경신)</p><p class='small' style='margin:8px 0 4px'><b>왜 주목</b></p><ul class='muted small reason-list reason-list-pro'><li>✓ 테마/모멘텀 신호(확신도 하) · 오늘 +1.74%</li></ul><p class='small' style='margin:8px 0 4px'><b>주의할 점</b></p><ul class='muted small reason-list reason-list-con'><li>⚠ PBR 2.31로 밸류에이션 부담</li><li>⚠ 거래량 평소 대비 0.4배로 관심 저조</li><li>⚠ 최근 고가 경신 -- 단기 상승분 이미 반영됐을 수 있음</li></ul><p class='small' style='margin:8px 0 4px'><b>점수 상세</b></p><ul class='score-breakdown muted small'><li><span>미국 섹터 강세</span><span>8.0</span></li><li><span>국내 이슈/공시</span><span>0.0</span></li><li><span>거래량</span><span>3.0</span></li><li><span>화제성(실시간 모멘텀)</span><span>3.0</span></li><li><span>기대감(상승 여력)</span><span>8.0</span></li><li><span>공포지수(시장 심리)</span><span>5.0</span></li><li><span>반등 시점</span><span>5.0</span></li><li><span>저평가</span><span>7.0</span></li><li><span>재무 안정성</span><span>10.0</span></li><li><span>규모 적합성(대장주)</span><span>10.0</span></li></ul></div><div class='card'><h3>우리기술투자 <span class='muted small'>041190</span></h3><p class='muted small'>57.0/100점 · 순위 2위</p><p class='small' style='margin:8px 0 4px'>연결 고리: 미국 IBIT(암호화폐) → 가상자산 거래소(빗썸) 지분 보유 → 우리기술투자 → PBR 0.43(저평가) → 거래량 평소 대비 0.6배</p><p class='small' style='margin:8px 0 4px'><b>왜 주목</b></p><ul class='muted small reason-list reason-list-pro'><li>✓ 테마/모멘텀 신호(확신도 하) · 오늘 +0.00%</li><li>✓ PBR 0.43로 상대적 저평가</li></ul><p class='small' style='margin:8px 0 4px'><b>주의할 점</b></p><ul class='muted small reason-list reason-list-con'><li>⚠ 현재 데이터 기준 특별한 위험 신호는 없음</li></ul><p class='small' style='margin:8px 0 4px'><b>점수 상세</b></p><ul class='score-breakdown muted small'><li><span>미국 섹터 강세</span><span>2.0</span></li><li><span>국내 이슈/공시</span><span>0.0</span></li><li><span>거래량</span><span>2.0</span></li><li><span>화제성(실시간 모멘텀)</span><span>3.0</span></li><li><span>기대감(상승 여력)</span><span>10.0</span></li><li><span>공포지수(시장 심리)</span><span>5.0</span></li><li><span>반등 시점</span><span>5.0</span></li><li><span>저평가</span><span>10.0</span></li><li><span>재무 안정성</span><span>10.0</span></li><li><span>규모 적합성(대장주)</span><span>10.0</span></li></ul></div><div class='card'><h3>한전기술 <span class='muted small'>052690</span></h3><p class='muted small'>53.0/100점 · 순위 3위</p><p class='small' style='margin:8px 0 4px'>연결 고리: 미국 XLU(유틸리티) → 원전·발전 설계 엔지니어링 → 한전기술 → PBR 6.93(고평가) → 거래량 평소 대비 1.4배</p><p class='small' style='margin:8px 0 4px'><b>왜 주목</b></p><ul class='muted small reason-list reason-list-pro'><li>✓ 테마/모멘텀 신호(확신도 하) · 오늘 +1.09%</li></ul><p class='small' style='margin:8px 0 4px'><b>주의할 점</b></p><ul class='muted small reason-list reason-list-con'><li>⚠ PBR 6.93로 밸류에이션 부담</li></ul><p class='small' style='margin:8px 0 4px'><b>점수 상세</b></p><ul class='score-breakdown muted small'><li><span>미국 섹터 강세</span><span>2.0</span></li><li><span>국내 이슈/공시</span><span>0.0</span></li><li><span>거래량</span><span>4.0</span></li><li><span>화제성(실시간 모멘텀)</span><span>3.0</span></li><li><span>기대감(상승 여력)</span><span>8.0</span></li><li><span>공포지수(시장 심리)</span><span>5.0</span></li><li><span>반등 시점</span><span>5.0</span></li><li><span>저평가</span><span>6.0</span></li><li><span>재무 안정성</span><span>10.0</span></li><li><span>규모 적합성(대장주)</span><span>10.0</span></li></ul></div></div>
 <!-- SYNC:PICK_CARDS_END -->
   </div>
 
@@ -1212,12 +1242,12 @@ tbody tr:last-child td { border-bottom: none; }
 
   <h2>보유 종목 고찰</h2>
   <!-- SYNC:REFLECTION_START -->
-<ul class='small' style='margin:0;padding-left:18px;line-height:1.6'><li><b>우리기술투자</b>: 매수 이후 누적 +0.00%, 전일과 거의 같은 보합권입니다. 손절·익절 기준 사이에서 계속 지켜보는 중입니다</li><li><b>한전기술</b>: 매수 이후 누적 -0.36%, 전일 대비 -0.22% 밀리며 다소 부진합니다. 손절·익절 기준 사이에서 계속 지켜보는 중입니다</li><li><b>나노신소재</b>: 매수 이후 누적 -0.08%, 전일 대비 -0.08% 밀리며 다소 부진합니다. 손절·익절 기준 사이에서 계속 지켜보는 중입니다</li></ul>
+<p class='muted'>아직 현황 데이터가 없습니다.</p>
 <!-- SYNC:REFLECTION_END -->
 
   <h2>보유 종목 카드</h2>
   <!-- SYNC:DOMESTIC_CARDS_START -->
-<div class='card-grid'><div class='card'><h3>🇰🇷 우리기술투자 <span class='badge badge-etc'>홀딩</span></h3><p class='big flat'>+0.00% <span class='muted small'>당일</span></p><p class='muted small'>2026-09-18(금) 12시 기준</p><div class='progress-track' style='margin-top:12px'><div class='progress-fill bar-fill-up' style='left:50.0%;width:0.0%'></div><div class='progress-zero' style='left:50.0%'></div><div class='progress-tick' style='left:41.7%'></div><div class='progress-tick' style='left:66.7%'></div><div class='progress-marker' style='left:50.0%;border-top-color:var(--flat)'></div></div></div><div class='card'><h3>🇰🇷 한전기술 <span class='badge badge-etc'>홀딩</span></h3><p class='big down'>-0.22% <span class='muted small'>당일</span></p><p class='muted small'>2026-09-18(금) 12시 기준</p><div class='progress-track' style='margin-top:12px'><div class='progress-fill bar-fill-down' style='left:49.4%;width:0.6%'></div><div class='progress-zero' style='left:50.0%'></div><div class='progress-tick' style='left:41.7%'></div><div class='progress-tick' style='left:66.7%'></div><div class='progress-marker' style='left:49.4%;border-top-color:var(--down)'></div></div></div><div class='card'><h3>🇰🇷 나노신소재 <span class='badge badge-etc'>홀딩</span></h3><p class='big down'>-0.08% <span class='muted small'>당일</span></p><p class='muted small'>2026-09-18(금) 12시 기준</p><div class='progress-track' style='margin-top:12px'><div class='progress-fill bar-fill-down' style='left:49.9%;width:0.1%'></div><div class='progress-zero' style='left:50.0%'></div><div class='progress-tick' style='left:41.7%'></div><div class='progress-tick' style='left:66.7%'></div><div class='progress-marker' style='left:49.9%;border-top-color:var(--down)'></div></div></div></div>
+<p class='muted'>아직 현황 데이터가 없습니다.</p>
 <!-- SYNC:DOMESTIC_CARDS_END -->
 
   <h2>오늘의 시장 판단</h2>
@@ -1227,7 +1257,7 @@ tbody tr:last-child td { border-bottom: none; }
 
   <h2>오늘 20%+ 급등·거래대금 상위 10종목 중 놓친 게 있었나</h2>
   <!-- SYNC:MISS_AUDIT_START -->
-<div class='table-wrap'><table><thead><tr><th>종목명</th><th>종목코드</th><th>오늘등락률</th><th>거래대금</th><th>왜 놓쳤나</th></tr></thead><tbody><tr><td>가온전선 <span class='badge badge-fail'>후보풀 밖</span></td><td>000500</td><td class='up'>+20.92%</td><td>5526.6억</td><td>공시 없음. 지금 다시 확인해보면 등락률 순위 12위로 모멘텀 스캔 범위(상위 50위) 안이지만, 실제 매수 스캔은 12:00 시점이라 그때는 순위가 달라(범위 밖) 못 잡혔을 가능성이 큼</td></tr><tr class='miss-forward'><td colspan='5'><span class='muted small'>향후반영: 장중 순위가 계속 바뀌는 종목이라 스캔 시점 자체를 늘리기보다는, 이런 사례가 반복되면 12:00 스캔을 하루 중 여러 번(예: 시가 직후 추가 스캔)으로 늘리는 걸 검토할 근거가 됩니다. 시가총액 9.4조원은 현재 후보 필터 기준(200억원~60.0조원) 안입니다.</span></td></tr><tr><td>성호전자 <span class='badge badge-fail'>후보풀 밖</span></td><td>043260</td><td class='up'>+21.06%</td><td>2799.7억</td><td>공시 없음. 지금 다시 확인해보면 등락률 순위 11위로 모멘텀 스캔 범위(상위 50위) 안이지만, 실제 매수 스캔은 12:00 시점이라 그때는 순위가 달라(범위 밖) 못 잡혔을 가능성이 큼</td></tr><tr class='miss-forward'><td colspan='5'><span class='muted small'>향후반영: 장중 순위가 계속 바뀌는 종목이라 스캔 시점 자체를 늘리기보다는, 이런 사례가 반복되면 12:00 스캔을 하루 중 여러 번(예: 시가 직후 추가 스캔)으로 늘리는 걸 검토할 근거가 됩니다. 시가총액 2.0조원은 현재 후보 필터 기준(200억원~60.0조원) 안입니다.</span></td></tr><tr><td>선도전기 <span class='badge badge-fail'>후보풀 밖</span></td><td>007610</td><td class='up'>+27.99%</td><td>274.7억</td><td>공시 없음. 지금 다시 확인해보면 등락률 순위 6위로 모멘텀 스캔 범위(상위 50위) 안이지만, 실제 매수 스캔은 12:00 시점이라 그때는 순위가 달라(범위 밖) 못 잡혔을 가능성이 큼</td></tr><tr class='miss-forward'><td colspan='5'><span class='muted small'>향후반영: 장중 순위가 계속 바뀌는 종목이라 스캔 시점 자체를 늘리기보다는, 이런 사례가 반복되면 12:00 스캔을 하루 중 여러 번(예: 시가 직후 추가 스캔)으로 늘리는 걸 검토할 근거가 됩니다. 시가총액 877억원은 현재 후보 필터 기준(200억원~60.0조원) 안입니다.</span></td></tr><tr><td>엔에프씨 <span class='badge badge-fail'>후보풀 밖</span></td><td>265740</td><td class='up'>+29.92%</td><td>239.3억</td><td>공시 없음. 지금 다시 확인해보면 등락률 순위 3위로 모멘텀 스캔 범위(상위 50위) 안이지만, 실제 매수 스캔은 12:00 시점이라 그때는 순위가 달라(범위 밖) 못 잡혔을 가능성이 큼</td></tr><tr class='miss-forward'><td colspan='5'><span class='muted small'>향후반영: 장중 순위가 계속 바뀌는 종목이라 스캔 시점 자체를 늘리기보다는, 이런 사례가 반복되면 12:00 스캔을 하루 중 여러 번(예: 시가 직후 추가 스캔)으로 늘리는 걸 검토할 근거가 됩니다. 시가총액 1474억원은 현재 후보 필터 기준(200억원~60.0조원) 안입니다.</span></td></tr><tr><td>이엔셀 <span class='badge badge-fail'>후보풀 밖</span></td><td>456070</td><td class='up'>+25.90%</td><td>116.5억</td><td>공시 없음. 지금 다시 확인해보면 등락률 순위 9위로 모멘텀 스캔 범위(상위 50위) 안이지만, 실제 매수 스캔은 12:00 시점이라 그때는 순위가 달라(범위 밖) 못 잡혔을 가능성이 큼</td></tr><tr class='miss-forward'><td colspan='5'><span class='muted small'>향후반영: 장중 순위가 계속 바뀌는 종목이라 스캔 시점 자체를 늘리기보다는, 이런 사례가 반복되면 12:00 스캔을 하루 중 여러 번(예: 시가 직후 추가 스캔)으로 늘리는 걸 검토할 근거가 됩니다. 시가총액 729억원은 현재 후보 필터 기준(200억원~60.0조원) 안입니다.</span></td></tr><tr><td>이노인스트루먼트 <span class='badge badge-fail'>후보풀 밖</span></td><td>215790</td><td class='up'>+20.57%</td><td>80.5억</td><td>공시 없음. 지금 다시 확인해보면 등락률 순위 13위로 모멘텀 스캔 범위(상위 50위) 안이지만, 실제 매수 스캔은 12:00 시점이라 그때는 순위가 달라(범위 밖) 못 잡혔을 가능성이 큼</td></tr><tr class='miss-forward'><td colspan='5'><span class='muted small'>향후반영: 장중 순위가 계속 바뀌는 종목이라 스캔 시점 자체를 늘리기보다는, 이런 사례가 반복되면 12:00 스캔을 하루 중 여러 번(예: 시가 직후 추가 스캔)으로 늘리는 걸 검토할 근거가 됩니다. 시가총액 342억원은 현재 후보 필터 기준(200억원~60.0조원) 안입니다.</span></td></tr><tr><td>동양 <span class='badge badge-fail'>후보풀 밖</span></td><td>001520</td><td class='up'>+29.97%</td><td>67.2억</td><td>공시 없음. 지금 다시 확인해보면 등락률 순위 1위로 모멘텀 스캔 범위(상위 50위) 안이지만, 실제 매수 스캔은 12:00 시점이라 그때는 순위가 달라(범위 밖) 못 잡혔을 가능성이 큼</td></tr><tr class='miss-forward'><td colspan='5'><span class='muted small'>향후반영: 장중 순위가 계속 바뀌는 종목이라 스캔 시점 자체를 늘리기보다는, 이런 사례가 반복되면 12:00 스캔을 하루 중 여러 번(예: 시가 직후 추가 스캔)으로 늘리는 걸 검토할 근거가 됩니다. 시가총액 1449억원은 현재 후보 필터 기준(200억원~60.0조원) 안입니다.</span></td></tr><tr><td>오션인더블유 <span class='badge badge-fail'>후보풀 밖</span></td><td>052300</td><td class='up'>+26.15%</td><td>35.0억</td><td>공시 없음. 지금 다시 확인해보면 등락률 순위 8위로 모멘텀 스캔 범위(상위 50위) 안이지만, 실제 매수 스캔은 12:00 시점이라 그때는 순위가 달라(범위 밖) 못 잡혔을 가능성이 큼</td></tr><tr class='miss-forward'><td colspan='5'><span class='muted small'>향후반영: 장중 순위가 계속 바뀌는 종목이라 스캔 시점 자체를 늘리기보다는, 이런 사례가 반복되면 12:00 스캔을 하루 중 여러 번(예: 시가 직후 추가 스캔)으로 늘리는 걸 검토할 근거가 됩니다. 시가총액 306억원은 현재 후보 필터 기준(200억원~60.0조원) 안입니다.</span></td></tr><tr><td>썸에이지 <span class='badge badge-fail'>후보풀 밖</span></td><td>208640</td><td class='up'>+23.92%</td><td>21.4억</td><td>공시 없음. 지금 다시 확인해보면 등락률 순위 10위로 모멘텀 스캔 범위(상위 50위) 안이지만, 실제 매수 스캔은 12:00 시점이라 그때는 순위가 달라(범위 밖) 못 잡혔을 가능성이 큼</td></tr><tr class='miss-forward'><td colspan='5'><span class='muted small'>향후반영: 장중 순위가 계속 바뀌는 종목이라 스캔 시점 자체를 늘리기보다는, 이런 사례가 반복되면 12:00 스캔을 하루 중 여러 번(예: 시가 직후 추가 스캔)으로 늘리는 걸 검토할 근거가 됩니다. 시가총액 124억원이 현재 후보 필터 기준(200억원~60.0조원) 밖이라, 스캔 범위에 들어왔어도 애초에 매수 후보가 될 수 없는 종목입니다.</span></td></tr><tr><td>DYP <span class='badge badge-fail'>후보풀 밖</span></td><td>092780</td><td class='up'>+29.95%</td><td>16.9억</td><td>공시 없음. 지금 다시 확인해보면 등락률 순위 2위로 모멘텀 스캔 범위(상위 50위) 안이지만, 실제 매수 스캔은 12:00 시점이라 그때는 순위가 달라(범위 밖) 못 잡혔을 가능성이 큼</td></tr><tr class='miss-forward'><td colspan='5'><span class='muted small'>향후반영: 장중 순위가 계속 바뀌는 종목이라 스캔 시점 자체를 늘리기보다는, 이런 사례가 반복되면 12:00 스캔을 하루 중 여러 번(예: 시가 직후 추가 스캔)으로 늘리는 걸 검토할 근거가 됩니다. 시가총액 540억원은 현재 후보 필터 기준(200억원~60.0조원) 안입니다.</span></td></tr></tbody></table></div>
+<div class='table-wrap'><table><thead><tr><th>종목명</th><th>종목코드</th><th>오늘등락률</th><th>거래대금</th><th>왜 놓쳤나</th></tr></thead><tbody><tr><td>가온전선 <span class='badge badge-fail'>후보풀 밖</span></td><td>000500</td><td class='up'>+26.49%</td><td>6961.9억</td><td>공시 없음. 지금 다시 확인해보면 등락률 순위 10위로 모멘텀 스캔 범위(상위 50위) 안이지만, 실제 매수 스캔은 12:00 시점이라 그때는 순위가 달라(범위 밖) 못 잡혔을 가능성이 큼</td></tr><tr class='miss-forward'><td colspan='5'><span class='muted small'>향후반영: 장중 순위가 계속 바뀌는 종목이라 스캔 시점 자체를 늘리기보다는, 이런 사례가 반복되면 12:00 스캔을 하루 중 여러 번(예: 시가 직후 추가 스캔)으로 늘리는 걸 검토할 근거가 됩니다. 시가총액 9.8조원은 현재 후보 필터 기준(200억원~60.0조원) 안입니다.</span></td></tr><tr><td>성호전자 <span class='badge badge-fail'>후보풀 밖</span></td><td>043260</td><td class='up'>+22.69%</td><td>4518.8억</td><td>공시 없음. 지금 다시 확인해보면 등락률 순위 14위로 모멘텀 스캔 범위(상위 50위) 안이지만, 실제 매수 스캔은 12:00 시점이라 그때는 순위가 달라(범위 밖) 못 잡혔을 가능성이 큼</td></tr><tr class='miss-forward'><td colspan='5'><span class='muted small'>향후반영: 장중 순위가 계속 바뀌는 종목이라 스캔 시점 자체를 늘리기보다는, 이런 사례가 반복되면 12:00 스캔을 하루 중 여러 번(예: 시가 직후 추가 스캔)으로 늘리는 걸 검토할 근거가 됩니다. 시가총액 2.0조원은 현재 후보 필터 기준(200억원~60.0조원) 안입니다.</span></td></tr><tr><td>선도전기 <span class='badge badge-fail'>후보풀 밖</span></td><td>007610</td><td class='up'>+26.28%</td><td>347.9억</td><td>공시 없음. 지금 다시 확인해보면 등락률 순위 11위로 모멘텀 스캔 범위(상위 50위) 안이지만, 실제 매수 스캔은 12:00 시점이라 그때는 순위가 달라(범위 밖) 못 잡혔을 가능성이 큼</td></tr><tr class='miss-forward'><td colspan='5'><span class='muted small'>향후반영: 장중 순위가 계속 바뀌는 종목이라 스캔 시점 자체를 늘리기보다는, 이런 사례가 반복되면 12:00 스캔을 하루 중 여러 번(예: 시가 직후 추가 스캔)으로 늘리는 걸 검토할 근거가 됩니다. 시가총액 866억원은 현재 후보 필터 기준(200억원~60.0조원) 안입니다.</span></td></tr><tr><td>엔에프씨 <span class='badge badge-fail'>후보풀 밖</span></td><td>265740</td><td class='up'>+29.92%</td><td>240.5억</td><td>공시 없음. 지금 다시 확인해보면 등락률 순위 5위로 모멘텀 스캔 범위(상위 50위) 안이지만, 실제 매수 스캔은 12:00 시점이라 그때는 순위가 달라(범위 밖) 못 잡혔을 가능성이 큼</td></tr><tr class='miss-forward'><td colspan='5'><span class='muted small'>향후반영: 장중 순위가 계속 바뀌는 종목이라 스캔 시점 자체를 늘리기보다는, 이런 사례가 반복되면 12:00 스캔을 하루 중 여러 번(예: 시가 직후 추가 스캔)으로 늘리는 걸 검토할 근거가 됩니다. 시가총액 1474억원은 현재 후보 필터 기준(200억원~60.0조원) 안입니다.</span></td></tr><tr><td>이엔셀 <span class='badge badge-fail'>후보풀 밖</span></td><td>456070</td><td class='up'>+27.62%</td><td>157.7억</td><td>공시 없음. 지금 다시 확인해보면 등락률 순위 9위로 모멘텀 스캔 범위(상위 50위) 안이지만, 실제 매수 스캔은 12:00 시점이라 그때는 순위가 달라(범위 밖) 못 잡혔을 가능성이 큼</td></tr><tr class='miss-forward'><td colspan='5'><span class='muted small'>향후반영: 장중 순위가 계속 바뀌는 종목이라 스캔 시점 자체를 늘리기보다는, 이런 사례가 반복되면 12:00 스캔을 하루 중 여러 번(예: 시가 직후 추가 스캔)으로 늘리는 걸 검토할 근거가 됩니다. 시가총액 739억원은 현재 후보 필터 기준(200억원~60.0조원) 안입니다.</span></td></tr><tr><td>동양 <span class='badge badge-fail'>후보풀 밖</span></td><td>001520</td><td class='up'>+29.97%</td><td>67.6억</td><td>공시 없음. 지금 다시 확인해보면 등락률 순위 2위로 모멘텀 스캔 범위(상위 50위) 안이지만, 실제 매수 스캔은 12:00 시점이라 그때는 순위가 달라(범위 밖) 못 잡혔을 가능성이 큼</td></tr><tr class='miss-forward'><td colspan='5'><span class='muted small'>향후반영: 장중 순위가 계속 바뀌는 종목이라 스캔 시점 자체를 늘리기보다는, 이런 사례가 반복되면 12:00 스캔을 하루 중 여러 번(예: 시가 직후 추가 스캔)으로 늘리는 걸 검토할 근거가 됩니다. 시가총액 1449억원은 현재 후보 필터 기준(200억원~60.0조원) 안입니다.</span></td></tr><tr><td>오션인더블유 <span class='badge badge-fail'>후보풀 밖</span></td><td>052300</td><td class='up'>+23.21%</td><td>39.7억</td><td>공시 없음. 지금 다시 확인해보면 등락률 순위 13위로 모멘텀 스캔 범위(상위 50위) 안이지만, 실제 매수 스캔은 12:00 시점이라 그때는 순위가 달라(범위 밖) 못 잡혔을 가능성이 큼</td></tr><tr class='miss-forward'><td colspan='5'><span class='muted small'>향후반영: 장중 순위가 계속 바뀌는 종목이라 스캔 시점 자체를 늘리기보다는, 이런 사례가 반복되면 12:00 스캔을 하루 중 여러 번(예: 시가 직후 추가 스캔)으로 늘리는 걸 검토할 근거가 됩니다. 시가총액 299억원은 현재 후보 필터 기준(200억원~60.0조원) 안입니다.</span></td></tr><tr><td>DYP <span class='badge badge-fail'>후보풀 밖</span></td><td>092780</td><td class='up'>+29.95%</td><td>17.1억</td><td>공시 없음. 지금 다시 확인해보면 등락률 순위 4위로 모멘텀 스캔 범위(상위 50위) 안이지만, 실제 매수 스캔은 12:00 시점이라 그때는 순위가 달라(범위 밖) 못 잡혔을 가능성이 큼</td></tr><tr class='miss-forward'><td colspan='5'><span class='muted small'>향후반영: 장중 순위가 계속 바뀌는 종목이라 스캔 시점 자체를 늘리기보다는, 이런 사례가 반복되면 12:00 스캔을 하루 중 여러 번(예: 시가 직후 추가 스캔)으로 늘리는 걸 검토할 근거가 됩니다. 시가총액 540억원은 현재 후보 필터 기준(200억원~60.0조원) 안입니다.</span></td></tr><tr><td>수성웹툰 <span class='badge badge-fail'>후보풀 밖</span></td><td>084180</td><td class='up'>+79.10%</td><td>15.7억</td><td>공시 없음. 지금 다시 확인해보면 등락률 순위 1위로 모멘텀 스캔 범위(상위 50위) 안이지만, 실제 매수 스캔은 12:00 시점이라 그때는 순위가 달라(범위 밖) 못 잡혔을 가능성이 큼</td></tr><tr class='miss-forward'><td colspan='5'><span class='muted small'>향후반영: 장중 순위가 계속 바뀌는 종목이라 스캔 시점 자체를 늘리기보다는, 이런 사례가 반복되면 12:00 스캔을 하루 중 여러 번(예: 시가 직후 추가 스캔)으로 늘리는 걸 검토할 근거가 됩니다. 시가총액 43억원이 현재 후보 필터 기준(200억원~60.0조원) 밖이라, 스캔 범위에 들어왔어도 애초에 매수 후보가 될 수 없는 종목입니다.</span></td></tr><tr><td>아이오케이이엔엠 <span class='badge badge-fail'>후보풀 밖</span></td><td>078860</td><td class='up'>+29.86%</td><td>7.2억</td><td>공시 없음. 지금 다시 확인해보면 등락률 순위 7위로 모멘텀 스캔 범위(상위 50위) 안이지만, 실제 매수 스캔은 12:00 시점이라 그때는 순위가 달라(범위 밖) 못 잡혔을 가능성이 큼</td></tr><tr class='miss-forward'><td colspan='5'><span class='muted small'>향후반영: 장중 순위가 계속 바뀌는 종목이라 스캔 시점 자체를 늘리기보다는, 이런 사례가 반복되면 12:00 스캔을 하루 중 여러 번(예: 시가 직후 추가 스캔)으로 늘리는 걸 검토할 근거가 됩니다. 시가총액 196억원이 현재 후보 필터 기준(200억원~60.0조원) 밖이라, 스캔 범위에 들어왔어도 애초에 매수 후보가 될 수 없는 종목입니다.</span></td></tr></tbody></table></div>
 <!-- SYNC:MISS_AUDIT_END -->
 
   <h2>오늘 모니터링 종목</h2>
@@ -1237,12 +1267,12 @@ tbody tr:last-child td { border-bottom: none; }
 
   <h2>참고: 미국 핵심 섹터 현황</h2>
   <!-- SYNC:US_SECTOR_START -->
-<p class='muted small'>상대모멘텀 상위 10개 + 실제 선정 섹터만 보여줍니다.</p><div class='table-wrap'><table><thead><tr><th>순위</th><th>티커</th><th>섹터</th><th>이슈</th><th>상대모멘텀</th><th>선정</th></tr></thead><tbody><tr><td>1</td><td>SMH</td><td>반도체</td><td>AI 반도체·메모리 수요 확대</td><td class='up'>+4.03%p</td><td>✅</td></tr><tr><td>2</td><td>XLK</td><td>기술(S&P 기준)</td><td>글로벌 대형 IT/플랫폼 강세</td><td class='up'>+2.06%p</td><td>✅</td></tr><tr><td>3</td><td>KRE</td><td>지방은행</td><td>중소형/지방은행 자금조달 여건</td><td class='down'>-0.15%p</td><td></td></tr><tr><td>4</td><td>XLI</td><td>산업재</td><td>산업재·기계·조선 수주</td><td class='down'>-0.10%p</td><td></td></tr><tr><td>5</td><td>XLU</td><td>유틸리티</td><td>전력 인프라(AI 데이터센터向 전력수요)</td><td class='down'>-0.34%p</td><td></td></tr><tr><td>6</td><td>XLRE</td><td>부동산(리츠)</td><td>부동산·리츠 자금조달 여건</td><td class='down'>-0.73%p</td><td></td></tr><tr><td>7</td><td>XLP</td><td>필수소비재</td><td>필수소비재 방어주</td><td class='down'>-1.06%p</td><td></td></tr><tr><td>8</td><td>XLF</td><td>금융(대형은행)</td><td>금리 환경·대형은행 실적</td><td class='down'>-1.09%p</td><td></td></tr><tr><td>9</td><td>XLY</td><td>임의소비재</td><td>소비·자동차·유통 심리</td><td class='down'>-1.86%p</td><td></td></tr><tr><td>10</td><td>GLD</td><td>금(현물)</td><td>안전자산·귀금속 가격 강세</td><td class='down'>-1.64%p</td><td></td></tr></tbody></table></div>
+<p class='muted small'>상대모멘텀 상위 10개 + 실제 선정 섹터만 보여줍니다.</p><div class='table-wrap'><table><thead><tr><th>순위</th><th>티커</th><th>섹터</th><th>이슈</th><th>상대모멘텀</th><th>선정</th></tr></thead><tbody><tr><td>1</td><td>SMH</td><td>반도체</td><td>AI 반도체·메모리 수요 확대</td><td class='up'>+4.03%p</td><td></td></tr><tr><td>2</td><td>XLK</td><td>기술(S&P 기준)</td><td>글로벌 대형 IT/플랫폼 강세</td><td class='up'>+2.06%p</td><td>✅</td></tr><tr><td>3</td><td>KRE</td><td>지방은행</td><td>중소형/지방은행 자금조달 여건</td><td class='down'>-0.15%p</td><td></td></tr><tr><td>4</td><td>XLI</td><td>산업재</td><td>산업재·기계·조선 수주</td><td class='down'>-0.10%p</td><td></td></tr><tr><td>5</td><td>XLU</td><td>유틸리티</td><td>전력 인프라(AI 데이터센터向 전력수요)</td><td class='down'>-0.34%p</td><td></td></tr><tr><td>6</td><td>XLRE</td><td>부동산(리츠)</td><td>부동산·리츠 자금조달 여건</td><td class='down'>-0.73%p</td><td></td></tr><tr><td>7</td><td>XLP</td><td>필수소비재</td><td>필수소비재 방어주</td><td class='down'>-1.06%p</td><td></td></tr><tr><td>8</td><td>XLF</td><td>금융(대형은행)</td><td>금리 환경·대형은행 실적</td><td class='down'>-1.09%p</td><td></td></tr><tr><td>9</td><td>XLY</td><td>임의소비재</td><td>소비·자동차·유통 심리</td><td class='down'>-1.86%p</td><td></td></tr><tr><td>10</td><td>GLD</td><td>금(현물)</td><td>안전자산·귀금속 가격 강세</td><td class='down'>-1.64%p</td><td></td></tr></tbody></table></div>
 <!-- SYNC:US_SECTOR_END -->
 
   <h2>일별 현황 이력</h2>
   <!-- SYNC:STATUS_HISTORY_START -->
-<table><thead><tr><th>날짜</th><th>국내(매수가 대비 누적)</th><th>누적평균</th><th>당일평균(성공기준)</th></tr></thead><tbody><tr><td>2026-09-18</td><td>우리기술투자 +0.00%, 한전기술 -0.36%, 나노신소재 -0.08%</td><td class='down'>-0.15%</td><td class='down'>-0.10% <span class='badge badge-fail'>실패</span></td></tr></tbody></table>
+<p class='muted'>데이터 없음</p>
 <!-- SYNC:STATUS_HISTORY_END -->
 
   <h2>이전 기록 (2026-09-04 ~ 09, 참고용)</h2>
@@ -1400,19 +1430,14 @@ tbody tr:last-child td { border-bottom: none; }
       <span class="eyebrow">일일 성공 기준</span>
       <h2 class="cosmic-heading">보유 3종목, 하루 평균 등락</h2>
       <!-- SYNC:DAILY_SUCCESS_STAT_START -->
-<div class="cosmic-stat-row">
-      <div class="cosmic-stat"><div class="cosmic-stat-label">추적 일수</div><div class="cosmic-stat-value">1<span class="cosmic-stat-unit">일</span></div></div>
-      <div class="cosmic-stat"><div class="cosmic-stat-label">성공한 날 (평균 +5% 이상)</div><div class="cosmic-stat-value">0<span class="cosmic-stat-unit">일</span></div></div>
-      <div class="cosmic-stat"><div class="cosmic-stat-label">성공률</div><div class="cosmic-stat-value">0.0<span class="cosmic-stat-unit">%</span></div></div>
-      <div class="cosmic-stat"><div class="cosmic-stat-label">일별 평균의 평균</div><div class="cosmic-stat-value down">-0.10%</div></div>
-    </div>
+<p class='muted small'>아직 쌓인 일별 기록이 없습니다 -- 내일부터 하루씩 쌓입니다.</p>
 <!-- SYNC:DAILY_SUCCESS_STAT_END -->
     </div>
   </div>
 
   <h2>일별 기록</h2>
   <!-- SYNC:DAILY_SUCCESS_TABLE_START -->
-<div class='table-wrap'><table><thead><tr><th>날짜</th><th>보유 3종목 평균 당일등락</th><th>판정(기준 +5%)</th></tr></thead><tbody><tr><td>2026-09-18</td><td class='down'>-0.10%</td><td><span class='badge badge-fail'>실패</span></td></tr></tbody></table></div>
+
 <!-- SYNC:DAILY_SUCCESS_TABLE_END -->
 
   <details class="legacy-details">

@@ -110,27 +110,40 @@ a { color: inherit; }
 .logo-emblem { width: 22px; height: 22px; flex-shrink: 0; }
 .nav-links {
   display: flex;
-  gap: 22px;
+  gap: 4px;
   list-style: none;
   margin: 0;
   padding: 0;
   font-size: 14px;
 }
 .nav-links a, .nav-links button {
+  position: relative;
   text-decoration: none;
   color: var(--muted);
-  font-weight: 600;
+  font-weight: 700;
   white-space: nowrap;
   /* .logo와 같은 이유: 배포본에서는 <button data-route>가 된다 */
   background: none;
   border: none;
-  padding: 0;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   font-family: inherit;
   font-size: inherit;
+  transition: color 0.15s ease, background 0.15s ease;
 }
-.nav-links a.active, .nav-links button.active,
-.nav-links a:hover, .nav-links button:hover { color: var(--text); }
+.nav-links a:hover, .nav-links button:hover { color: var(--text); background: var(--card-bg-2); }
+.nav-links a.active, .nav-links button.active { color: var(--text); }
+.nav-links a.active::after, .nav-links button.active::after {
+  content: "";
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 2px;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--brand);
+}
 
 /* Ticker tape */
 .ticker-tape {
@@ -571,6 +584,23 @@ tbody tr:last-child td { border-bottom: none; }
 
 .reason-list { margin: 6px 0 0; padding-left: 16px; }
 .reason-list li { margin-bottom: 2px; }
+
+/* "왜 주목"/"주의할 점" 갈래 -- 2026-09-18, 종목의 상승 근거/리스크를 대비시켜 보여준다.
+   사이트 전역에서 이미 상승=--up(빨강)/하락=--down(파랑)로 쓰는 관례를 그대로 재사용. */
+.reason-list-pro, .reason-list-con { list-style: none; margin: 6px 0 0; padding-left: 12px; }
+.reason-list-pro { border-left: 2px solid var(--up); }
+.reason-list-con { border-left: 2px solid var(--down); }
+.reason-list-pro li, .reason-list-con li { margin-bottom: 3px; }
+
+.score-breakdown {
+  list-style: none; margin: 6px 0 0; padding: 0;
+  display: grid; grid-template-columns: 1fr auto; gap: 4px 8px;
+}
+.score-breakdown li { display: contents; }
+.score-breakdown li span:last-child {
+  font-family: var(--font-mono); font-variant-numeric: tabular-nums;
+  text-align: right; color: var(--text); font-weight: 700;
+}
 
 .progress-track { position: relative; height: 6px; background: var(--border); border-radius: 999px; margin: 10px 0 2px; overflow: visible; }
 .progress-fill { position: absolute; top: 0; left: 0; height: 100%; border-radius: 999px; }
