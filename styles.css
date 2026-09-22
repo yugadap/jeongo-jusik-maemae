@@ -624,7 +624,7 @@ tbody tr:last-child td { border-bottom: none; }
 .card.flip-card:hover { transform: none; }
 .flip-card-inner {
   position: relative;
-  height: 300px;
+  height: 420px;
   transition: transform 0.7s cubic-bezier(0.4, 0.2, 0.2, 1), filter 0.3s ease;
   transform-style: preserve-3d;
 }
@@ -641,7 +641,14 @@ tbody tr:last-child td { border-bottom: none; }
   box-shadow: var(--shadow-md);
   padding: 18px 20px;
   overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--brand) transparent;
 }
+/* 2026-09-23: 뒷면 내용이 420px보다 길면 스크롤해야 하는데, 잘린 것처럼 보여 발견하기
+   어렵다는 지적(사용자 "카드 뒷면 내용이 스크롤 뒤에 숨는다")에 스크롤바를 눈에 띄게 했다. */
+.flip-back::-webkit-scrollbar { width: 6px; }
+.flip-back::-webkit-scrollbar-thumb { background: var(--brand); border-radius: 999px; }
+.flip-back::-webkit-scrollbar-track { background: transparent; }
 .flip-front {
   display: flex;
   flex-direction: column;
