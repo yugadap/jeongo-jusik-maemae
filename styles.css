@@ -789,10 +789,99 @@ tbody tr:last-child td { border-bottom: none; }
   color: var(--muted);
   font-size: 12px;
 }
+.site-footer p { margin: 14px 0 0; }
+.footer-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 18px; margin-bottom: 14px; }
+.footer-link {
+  background: none; border: none; padding: 4px 0; cursor: pointer;
+  font: inherit; font-size: 13px; font-weight: 700; color: var(--muted); text-decoration: none;
+}
+.footer-link:hover { color: var(--text); }
+.share-btn {
+  font: inherit; font-size: 13px; font-weight: 700; cursor: pointer;
+  color: var(--text); background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: 999px; padding: 8px 18px;
+}
+.share-btn:hover { border-color: var(--brand); }
+
+/* 2026-09-24 공통 개선: 키보드 포커스 표시, 오늘 한눈에, 종목별 손절/익절선, 점수 범례,
+   위험 안내, 용어 풀이, 시장 대비 성과, 영상 일시정지, 맨 위로 */
+a:focus-visible, button:focus-visible, summary:focus-visible, video:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}
+
+.today-summary {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--brand);
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  margin-bottom: 8px;
+}
+.today-summary-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
+.today-summary ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font-size: 14.5px; }
+.today-summary li { display: flex; gap: 10px; align-items: baseline; line-height: 1.5; }
+.summary-key {
+  flex: 0 0 auto; font-size: 11px; font-weight: 800; letter-spacing: 0.04em;
+  color: var(--muted); border: 1px solid var(--border); border-radius: 999px; padding: 1px 8px;
+}
+
+.position-levels {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 14px;
+  margin: 12px 0 0; font-size: 13px;
+}
+.position-levels div { display: flex; flex-direction: column; gap: 2px; }
+.position-levels dt { color: var(--muted); font-size: 11.5px; font-weight: 700; }
+.position-levels dd { margin: 0; font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-weight: 600; }
+
+.score-legend {
+  display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: center;
+  font-size: 12.5px; color: var(--muted); margin: 4px 0 14px;
+}
+.score-legend b { color: var(--text); font-family: var(--font-mono); }
+.score-legend-title { font-weight: 800; color: var(--text); }
+
+.risk-box {
+  margin-top: 28px; padding: 16px 20px;
+  background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius-md);
+}
+.risk-box h3 { margin: 0 0 8px; font-size: 15px; }
+.risk-box ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; font-size: 13.5px; color: var(--muted); line-height: 1.6; }
+.risk-box b { color: var(--text); }
+
+.glossary { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin: 0; }
+.glossary div { background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px 14px; }
+.glossary dt { font-weight: 800; margin-bottom: 4px; }
+.glossary dd { margin: 0; color: var(--muted); font-size: 13.5px; line-height: 1.6; }
+
+.bench-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin: 8px 0 10px; }
+.bench-item { background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 14px 16px; }
+.bench-main { border-color: var(--brand); }
+.bench-label { font-size: 12px; font-weight: 700; color: var(--muted); }
+.bench-value { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 24px; font-weight: 800; margin-top: 4px; }
+.bench-diff { font-size: 12px; color: var(--muted); margin-top: 2px; font-family: var(--font-mono); }
+
+.video-toggle {
+  position: absolute; right: 12px; bottom: 12px;
+  font: inherit; font-size: 12px; font-weight: 700; cursor: pointer;
+  color: #fff; background: rgba(0, 0, 0, 0.55); border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 999px; padding: 6px 12px;
+}
+
+.back-to-top {
+  position: fixed; right: 16px; bottom: 20px; z-index: 50;
+  width: 44px; height: 44px; border-radius: 50%;
+  font-size: 18px; font-weight: 800; cursor: pointer;
+  color: var(--text); background: var(--card-bg); border: 1px solid var(--border); box-shadow: var(--shadow-md);
+}
+.back-to-top:hover { border-color: var(--brand); }
 
 @media (max-width: 640px) {
   .nav-wrap { flex-wrap: wrap; }
-  .nav-links { gap: 10px 14px; font-size: 12px; width: 100%; }
+  .nav-links { gap: 10px 14px; font-size: 12px; width: 100%; overflow-x: auto; scrollbar-width: none; }
+  .nav-links::-webkit-scrollbar { display: none; }
+  .today-summary li { flex-direction: column; gap: 4px; }
   .hero h1 { font-size: 26px; }
   .kpi-strip { grid-template-columns: repeat(2, 1fr); }
   .kpi-value { font-size: 17px; }
